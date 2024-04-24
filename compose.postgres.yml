@@ -1,0 +1,22 @@
+version: '3'
+services:
+
+  lct-postgres:
+    container_name: lct-postgres
+    image: postgres:12.0-alpine
+    shm_size: 512m
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - ./strapi-data:/var/lib/postgresql/data/ 
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    networks:
+      - default
+    logging:
+      options:
+        max-size: 50m

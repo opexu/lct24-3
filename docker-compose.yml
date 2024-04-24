@@ -1,0 +1,9 @@
+version: '3'
+
+include:
+  - compose.network.yml
+  - compose.front.yml
+  - compose.back.yml
+  - compose.postgres.yml
+  - compose.nginx.yml
+    

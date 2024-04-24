@@ -1,0 +1,27 @@
+version: '3'
+services:
+
+  lct-back:
+    container_name: lct-back
+    restart: unless-stopped
+    build: 
+      dockerfile: ./Dockerfile
+      context: ./back
+    # image: strapi:latest
+    env_file: .env
+    volumes:
+      - ./back/config:/opt/app/config
+      - ./back/src:/opt/app/src
+      - ./back/uploads:/opt/app/public/uploads
+      - ./back/package.json:/opt/package.json
+      - ./back/package-lock.json:/opt/package-lock.json
+      - ./.env:/opt/app/.env
+    ports:
+      - ${STRAPI_PORT}:${STRAPI_PORT}
+    networks:
+      - default
+    depends_on:
+      - lct-postgres
+    logging:
+      options:
+        max-size: 50m

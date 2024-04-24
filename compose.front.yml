@@ -1,0 +1,16 @@
+version: '3'
+services:
+  
+  lct-front:
+    container_name: lct-front
+    restart: unless-stopped
+    build: ./front/
+    env_file: .env
+    volumes:
+     - ./front/src:/app/src
+    networks:
+      - default
+    logging:
+        options:
+          max-size: '50m'
+
