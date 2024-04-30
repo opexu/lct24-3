@@ -11,13 +11,21 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@types/three": "^0.164.0",
+    "axios": "^1.6.8",
     "pinia": "^2.1.7",
+    "primevue": "^3.52.0",
+    "primeicons": "latest",
+    "qs": "^6.11.2",
+    "three": "^0.164.1",
     "vue": "^3.4.21",
+    "vue-cookies": "^1.8.3",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",
     "@types/node": "^20.11.28",
+    "@types/qs": "^6.9.11",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "^10.4.19",
