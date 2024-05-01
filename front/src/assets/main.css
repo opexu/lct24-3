@@ -1,35 +1,57 @@
 @tailwind base;
-@tailwind components;
 @tailwind utilities;
+@tailwind variants;
 
-@layer components {
-
-    html {
-        @apply w-screen h-screen bg-white text-black overscroll-none text-sm;
-    }
-
-    body {
-        @apply w-full h-full;
-    }
-
-    #app {
-        @apply w-full h-full;
-    }
-
+html {
+    @apply w-screen h-screen overscroll-none text-sm;
 }
 
+body {
+    @apply w-full h-full;
+}
+
+#app {
+    @apply w-full h-full;
+}
+
+/* :root {
+    --primary-50: #FFFAF1;
+    --primary-100: #FFEACE;
+    --primary-200: #FFD4AA;
+    --primary-300: #FFAA74;
+    --primary-400: #FF7C45;
+    --primary-500: #FD5630;
+    --primary-600: #E94136;
+    --primary-700: #C93841;
+    --primary-800: #A92E44;
+    --primary-900: #7A1B36;
+    --primary-950: #5B0021;
+    --surface-0: 255 255 255;
+    --surface-50: 249 250 251;
+    --surface-100: 243 244 246;
+    --surface-200: 229 231 235;
+    --surface-300: 209 213 219;
+    --surface-400: 156 163 175;
+    --surface-500: 107 114 128;
+    --surface-600: 75 85 99;
+    --surface-700: 55 65 81;
+    --surface-800: 31 41 55;
+    --surface-900: 17 24 39;
+    --surface-950: 8 8 8;
+} */
+
 :root {
-    --primary-50: 236 253 245;
-    --primary-100: 209 250 229;
-    --primary-200: 167 243 208;
-    --primary-300: 110 231 183;
-    --primary-400: 52 211 153;
-    --primary-500: 16 185 129;
-    --primary-600: 5 150 105;
-    --primary-700: 4 120 87;
-    --primary-800: 6 95 70;
-    --primary-900: 4 78 56;
-    --primary-950: 2 44 34;
+    --primary-50: 255, 250, 241;
+    --primary-100: 255, 234, 206;
+    --primary-200: 255, 212, 170;
+    --primary-300: 255, 170, 116;
+    --primary-400: 255, 124, 69;
+    --primary-500: 253, 86, 48;
+    --primary-600: 233, 65, 54;
+    --primary-700: 201, 56, 65;
+    --primary-800: 169, 46, 68;
+    --primary-900: 122, 27, 54;
+    --primary-950: 91, 0, 33;
     --surface-0: 255 255 255;
     --surface-50: 249 250 251;
     --surface-100: 243 244 246;

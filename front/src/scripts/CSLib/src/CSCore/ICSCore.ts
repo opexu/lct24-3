@@ -1,3 +1,3 @@
 export interface ICSCore {
-    init( div: HTMLDivElement ): void
+    resize( width: number, height: number ): void;
 }

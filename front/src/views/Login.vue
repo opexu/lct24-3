@@ -1,6 +1,6 @@
 <template>
 <div class="w-full h-full flex justify-center items-center">
-    <div class="w-fit min-w-[30%] h-fit flex flex-col space-y-4">
+    <div class="w-fit min-w-[40%] h-fit flex flex-col space-y-4">
         
         <!-- HEADER TEXT -->
         <div class="w-full h-full flex flex-row justify-center">
@@ -40,7 +40,7 @@
 
         <!-- FOOTER TEXT-->
         <div class="w-full h-fit flex">
-            <Button class="w-full h-fit" 
+            <Button class="w-full h-fit"
             outlined
             label="Авторизоваться" 
             @click="submitLogin"
@@ -48,12 +48,10 @@
         </div>
 
         <!-- ERROR -->
-        <div class="w-full h-fit p-4 rounded-md flex flex-row justify-center items-center"
-        :class="[ message.isError ? 'border-red-500 bg-red-50 text-red-800' : 'border-green-500 bg-green-50 text-green-800']"
+        <InlineMessage :severity="message.severity"
         v-if="message.text"
-        >
-            <p>{{ message.text }}</p>
-        </div>
+        >{{ message.text }}</InlineMessage>
+        
     </div>
 </div>
 </template>
@@ -64,9 +62,9 @@ import { useApi } from '@/composables/useAPI';
 import { COOKIE_KEY, useCookiesStore } from '@/stores/cookie-store';
 import type { API_KEY, IAPI } from '@/types/api';
 import type { IAuthRes } from '@/types/auth';
-import type { IAxiosStrapi } from '@/types/strapi';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
+import InlineMessage from 'primevue/inlinemessage';
 import Password from 'primevue/password';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -80,7 +78,7 @@ const login = ref();
 const password = ref();
 const isAuthError = ref(false);
 const message = ref({
-    isError: false,
+    severity: 'success',
     text: ''
 });
     
@@ -94,11 +92,12 @@ async function submitLogin(){
         cookies.set( COOKIE_KEY.USER, loginRes.data.user );
         cookies.set( COOKIE_KEY.JWT, loginRes.data.jwt );
         isAuthError.value = isAuthError.value ? false : true;
+        message.value = { severity: 'success', text: 'Успешная авторизация' }
         router.push({ name: 'app' });
     }catch(e){
         const msg = 'Ошибка авторизации, попробуйте изменить логин или пароль';
         console.warn( msg, e);
-        message.value = { isError: true, text: msg }
+        message.value = { severity: 'error', text: msg }
         isAuthError.value = true;
     }
 }

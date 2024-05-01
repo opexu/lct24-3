@@ -1,49 +1,81 @@
 <template>
-<Splitter class="w-full h-full border-0">
-    <SplitterPanel :size="35" class="p-4">
-        <Panel class="h-full">
-            <template #footer>
-                <UserInfo class="w-full h-fit"
-                :user="userInfo"
-                />
-            </template>
+<Splitter ref="splitterRef" class="w-full h-full border-0" :gutterSize="2"
+:pt="{ gutter: { class: 'bg-neutral-950 cursor-col-resize' }, gutterHandler: { class: 'bg-neutral-950 cursor-col-resize' }}"
+>
+    <SplitterPanel ref="splitterLeftPanelRef" :size="30" :min-size="30" class="w-full h-full p-4 pr-2 flex flex-col space-y-4 bg-neutral-900">
+        <Image class="max-w-[250px]"
+        :src="LogoUrl"/>
+        <div class="w-full h-full p-4 flex flex-col rounded-lg bg-neutral-800">
+            <Panel class="h-full">
+                <template #footer>
+                    <UserInfo class="w-full h-fit"
+                    :user="userInfo"
+                    />
+                </template>
+            
+            </Panel>
+        </div>
         
-        </Panel>
     </SplitterPanel>
-    <SplitterPanel :size="65">
-        <div ref="csRoot" class="w-full h-full"></div>
+    <SplitterPanel :size="70" class="w-full h-full p-4 pl-2 flex bg-neutral-900 outline-none">
+        <div id="csRootRef" ref="csRootRef" class="w-full h-full rounded-lg"></div>
     </SplitterPanel>
 </Splitter>
 </template>
 
 <script setup lang="ts">
-import Splitter from 'primevue/splitter';
+import Splitter, { type SplitterResizeEvent } from 'primevue/splitter';
 import SplitterPanel from 'primevue/splitterpanel';
 import UserInfo from '@/components/UserInfo.vue';
 import { useLogout } from '@/composables/useLogout';
 import { COOKIE_KEY, useCookiesStore } from '@/stores/cookie-store';
 import { useCSStore } from '@/stores/cs-store';
 import type { IUser } from '@/types/auth';
-import { onMounted, ref, nextTick, computed } from 'vue';
-import Card from 'primevue/card';
+import { onMounted, ref, nextTick, computed, onUnmounted, type ComponentInstance } from 'vue';
 import Panel from 'primevue/panel';
+import Image from 'primevue/image';
+import LogoUrl from '@/assets/Logo.png';
 
 const cookies = useCookiesStore();
 const userInfo = computed(() => cookies.get<IUser>( COOKIE_KEY.USER ) );
 const logout = useLogout();
 const CSStore = useCSStore();
-const csRoot = ref<InstanceType<typeof HTMLDivElement>|null>();
+const csRootRef = ref<InstanceType<typeof HTMLDivElement>|null>();
+const splitterRef = ref<ComponentInstance<typeof Splitter>|null>();
+const splitterLeftPanelRef = ref<ComponentInstance<typeof SplitterPanel>|null>();
+
 onMounted( async () => {
-    if( csRoot.value ){
-        CSStore.CS.init( csRoot.value );
+    if( csRootRef.value && splitterRef.value && splitterLeftPanelRef.value ){
+        CSStore.init( csRootRef.value );
     }else{
         await nextTick();
-        if( csRoot.value ){
-            CSStore.CS.init( csRoot.value );
+        if( csRootRef.value ){
+            CSStore.init( csRootRef.value );
         }else{
             console.error('Ошибка инициализации приложения');
             logout.logout();
         }
     }
+    
+    splitterLeftPanelRef.value && splitterObserver.observe( splitterLeftPanelRef.value.$el );
 })
+onUnmounted(() => {
+    splitterLeftPanelRef.value && splitterObserver.unobserve( splitterLeftPanelRef.value.$el );
+})
+const splitterObserver = new ResizeObserver(( entries: ResizeObserverEntry[], observer: ResizeObserver ) => {
+    onSplitterResize( entries[0].contentRect.width );
+    // onSplitterResize( entries[0].contentBoxSize[0].inlineSize );
+});
+
+function onSplitterResize( splitterLeftPanelWidth: number ){
+    onResize( splitterLeftPanelWidth, 28, 28 );
+}
+
+function onResize( splitterLeftPanelWidth: number, offsetWidth: number, offsetHeight: number ){
+    if( !csRootRef.value || !splitterRef.value || !splitterLeftPanelRef.value ) return;
+    console.log('window.innerWidth: ', window.innerWidth)
+    console.log('splitterLeftPanelWidth: ', splitterLeftPanelWidth)
+    const rightWidth = window.innerWidth - splitterLeftPanelWidth - 2;
+    CSStore.resize( rightWidth - offsetWidth, window.innerHeight - offsetHeight );
+}
 </script>
