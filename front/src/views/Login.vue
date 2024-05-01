@@ -1,11 +1,10 @@
 <template>
-<div class="w-full h-full flex justify-center items-center">
-    <div class="w-fit min-w-[40%] h-fit flex flex-col space-y-4">
+<div class="w-full h-full flex justify-center items-center main-grad">
+    <div class="w-fit max-w-[40%] h-fit flex flex-col space-y-4">
         
         <!-- HEADER TEXT -->
-        <div class="w-full h-full flex flex-row justify-center">
-            <p class="text-lg">Авторизация</p>
-        </div>
+        <Image class="w-full h-fit"
+        :src="LogoUrl"/>
 
         <!-- BODY TEXT -->
         <form>
@@ -13,7 +12,7 @@
             
             <!-- ЛОГИН -->
             <div class="w-full h-fit flex flex-col">
-                <label for="login" class="w-full h-fit">Логин</label>
+                <label for="login" class="w-full h-fit text-white">Логин</label>
                 <InputText id="username" type="text" 
                 v-model="login" 
                 placeholder="Email пользователя"
@@ -24,7 +23,7 @@
 
             <!-- ПАРОЛЬ -->
             <div class="w-full h-fit flex flex-col">
-                <label for="password" class="w-full h-fit">Пароль</label>
+                <label for="password" class="w-full h-fit text-white">Пароль</label>
                 <Password id="password" 
                 required toggleMask
                 inputClass="w-full"
@@ -39,7 +38,7 @@
         </form>
 
         <!-- FOOTER TEXT-->
-        <div class="w-full h-fit flex">
+        <div class="w-full h-fit flex pt-4">
             <Button class="w-full h-fit"
             outlined
             label="Авторизоваться" 
@@ -68,6 +67,8 @@ import InlineMessage from 'primevue/inlinemessage';
 import Password from 'primevue/password';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import Image from 'primevue/image';
+import LogoUrl from '@/assets/Logo.png';
 
 const router = useRouter();
 const route = useRoute();

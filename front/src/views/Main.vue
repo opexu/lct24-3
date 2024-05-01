@@ -1,8 +1,9 @@
 <template>
-<Splitter ref="splitterRef" class="w-full h-full border-0" :gutterSize="2"
+<Splitter ref="splitterRef" class="w-full max-w-full h-full border-0" :gutterSize="2"
 :pt="{ gutter: { class: 'bg-neutral-950 cursor-col-resize' }, gutterHandler: { class: 'bg-neutral-950 cursor-col-resize' }}"
+@resize="onSplitterResize"
 >
-    <SplitterPanel ref="splitterLeftPanelRef" :size="30" :min-size="30" class="w-full h-full p-4 pr-2 flex flex-col space-y-4 bg-neutral-900">
+    <SplitterPanel ref="splitterLeftPanelRef" :size="30" :min-size="25" class="w-full h-full p-4 pr-2 flex flex-col space-y-4 bg-neutral-900">
         <Image class="max-w-[250px]"
         :src="LogoUrl"/>
         <div class="w-full h-full p-4 flex flex-col rounded-lg bg-neutral-800">
@@ -58,24 +59,30 @@ onMounted( async () => {
     }
     
     splitterLeftPanelRef.value && splitterObserver.observe( splitterLeftPanelRef.value.$el );
-})
+});
 onUnmounted(() => {
     splitterLeftPanelRef.value && splitterObserver.unobserve( splitterLeftPanelRef.value.$el );
-})
-const splitterObserver = new ResizeObserver(( entries: ResizeObserverEntry[], observer: ResizeObserver ) => {
-    onSplitterResize( entries[0].contentRect.width );
-    // onSplitterResize( entries[0].contentBoxSize[0].inlineSize );
 });
 
-function onSplitterResize( splitterLeftPanelWidth: number ){
-    onResize( splitterLeftPanelWidth, 28, 28 );
+const splitterObserver = new ResizeObserver(( entries: ResizeObserverEntry[], observer: ResizeObserver ) => {
+    onObserverResize( entries[0].contentRect.width );
+});
+
+function onObserverResize( splitterLeftPanelWidth: number ){
+    !isSplitterResize.value && onResize( splitterLeftPanelWidth, 21, 28 );
+}
+
+const isSplitterResize = ref(false);
+function onSplitterResize( event: SplitterResizeEvent ){
+    isSplitterResize.value = true;
+    const splitterLeftPanelWidth = ( window.innerWidth * event.sizes[0] ) / 100.0;
+    onResize( splitterLeftPanelWidth, 21, 28 );
+    isSplitterResize.value = false;
 }
 
 function onResize( splitterLeftPanelWidth: number, offsetWidth: number, offsetHeight: number ){
     if( !csRootRef.value || !splitterRef.value || !splitterLeftPanelRef.value ) return;
-    console.log('window.innerWidth: ', window.innerWidth)
-    console.log('splitterLeftPanelWidth: ', splitterLeftPanelWidth)
     const rightWidth = window.innerWidth - splitterLeftPanelWidth - 2;
-    CSStore.resize( rightWidth - offsetWidth, window.innerHeight - offsetHeight );
+    CSStore.resize( rightWidth - offsetWidth * 2, window.innerHeight - offsetHeight );
 }
 </script>

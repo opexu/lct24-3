@@ -14,6 +14,10 @@ body {
     @apply w-full h-full;
 }
 
+.main-grad {
+    @apply bg-gradient-to-br from-slate-700 to-zinc-800;
+}
+
 /* :root {
     --primary-50: #FFFAF1;
     --primary-100: #FFEACE;
