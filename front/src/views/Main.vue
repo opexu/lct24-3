@@ -69,20 +69,22 @@ const splitterObserver = new ResizeObserver(( entries: ResizeObserverEntry[], ob
 });
 
 function onObserverResize( splitterLeftPanelWidth: number ){
-    !isSplitterResize.value && onResize( splitterLeftPanelWidth, 21, 28 );
+    !isSplitterResize && onResize( splitterLeftPanelWidth, 21, 28 );
 }
 
-const isSplitterResize = ref(false);
+let isSplitterResize = false;
+let prevLeftWidth = 0;
 function onSplitterResize( event: SplitterResizeEvent ){
-    isSplitterResize.value = true;
+    isSplitterResize = true;
     const splitterLeftPanelWidth = ( window.innerWidth * event.sizes[0] ) / 100.0;
+    if( prevLeftWidth === splitterLeftPanelWidth ) { isSplitterResize = false; return; }
+    prevLeftWidth = splitterLeftPanelWidth;
     onResize( splitterLeftPanelWidth, 21, 28 );
-    isSplitterResize.value = false;
+    isSplitterResize = false;
 }
 
 function onResize( splitterLeftPanelWidth: number, offsetWidth: number, offsetHeight: number ){
-    if( !csRootRef.value || !splitterRef.value || !splitterLeftPanelRef.value ) return;
-    const rightWidth = window.innerWidth - splitterLeftPanelWidth - 2;
-    CSStore.resize( rightWidth - offsetWidth * 2, window.innerHeight - offsetHeight );
+    const rightWidth = window.innerWidth - splitterLeftPanelWidth - 2 - ( offsetWidth * 2 );
+    CSStore.resize( rightWidth, window.innerHeight - offsetHeight );
 }
 </script>
