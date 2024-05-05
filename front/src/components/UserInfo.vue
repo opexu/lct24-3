@@ -1,6 +1,6 @@
 <template>
-<div class="flex flex-row justify-between items-center">
-    <p>{{ user.email }}</p>
+<div class="flex flex-row justify-end items-center space-x-2">
+    <p class="text-neutral-500">{{ user.email }}</p>
     
     <Button icon="pi pi-times" severity="danger" text aria-label="Cancel"
     v-tooltip.bottom="'Выйти'"

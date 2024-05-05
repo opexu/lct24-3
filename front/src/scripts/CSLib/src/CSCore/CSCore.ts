@@ -1,4 +1,4 @@
-import { CSCameraControls, type ICSCameraControls } from "../CSCameraControls";
+import { CAMERA_TYPE, CSCameraControls, type ICSCameraControls } from "../CSCameraControls";
 import { CSRender, type ICSRender } from "../CSRender";
 import { CSScene } from "../CSScene/CSScene";
 import type { ICSScene } from "../CSScene/ICSScene";
@@ -44,6 +44,10 @@ export class CSCore implements ICSCore {
         requestAnimationFrame( this._animateCallback );
         this._csCameraControls.Controls.update();
         this._csRender.render();
+    }
     
+    public switchCamera( type: CAMERA_TYPE ): void {
+        this._csCameraControls.switchCamera( type );
+        this._csRender.setCamera( this._csCameraControls.Camera );
     }
 }

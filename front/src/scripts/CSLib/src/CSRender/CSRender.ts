@@ -8,9 +8,10 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 export class CSRender implements ICSRender {
 
     private readonly _scene: ICSScene;
-    private readonly _camera: THREE.Camera;
+    private _camera: THREE.Camera;
 
     private readonly _composer: EffectComposer;
+    private readonly _renderPass: RenderPass;
     private readonly _2DRenderer: CSS2DRenderer;
 
     constructor(
@@ -36,8 +37,8 @@ export class CSRender implements ICSRender {
 
         this._2DRenderer = new CSS2DRenderer({ element: root2D });
         this._composer = new EffectComposer( renderer );
-        const renderPass = new RenderPass( this._scene, camera );
-        this._composer.addPass( renderPass );
+        this._renderPass = new RenderPass( this._scene, this._camera );
+        this._composer.addPass( this._renderPass );
 
         root.append( canvas );
         root.append( root2D );
@@ -52,5 +53,10 @@ export class CSRender implements ICSRender {
         this._composer.renderer.setSize( width, height );
         this._2DRenderer.setSize( width, height );
         this._composer.setSize( width, height );
+    }
+
+    public setCamera( camera: THREE.Camera ): void {
+        this._camera = camera;
+        this._renderPass.camera = this._camera;
     }
 }
