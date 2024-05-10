@@ -19,32 +19,6 @@ body {
 }
 
 /* :root {
-    --primary-50: #FFFAF1;
-    --primary-100: #FFEACE;
-    --primary-200: #FFD4AA;
-    --primary-300: #FFAA74;
-    --primary-400: #FF7C45;
-    --primary-500: #FD5630;
-    --primary-600: #E94136;
-    --primary-700: #C93841;
-    --primary-800: #A92E44;
-    --primary-900: #7A1B36;
-    --primary-950: #5B0021;
-    --surface-0: 255 255 255;
-    --surface-50: 249 250 251;
-    --surface-100: 243 244 246;
-    --surface-200: 229 231 235;
-    --surface-300: 209 213 219;
-    --surface-400: 156 163 175;
-    --surface-500: 107 114 128;
-    --surface-600: 75 85 99;
-    --surface-700: 55 65 81;
-    --surface-800: 31 41 55;
-    --surface-900: 17 24 39;
-    --surface-950: 8 8 8;
-} */
-
-:root {
     --primary-50: 255, 250, 241;
     --primary-100: 255, 234, 206;
     --primary-200: 255, 212, 170;
@@ -68,4 +42,113 @@ body {
     --surface-800: 31 41 55;
     --surface-900: 17 24 39;
     --surface-950: 8 8 8;
+} */
+
+:root {
+    /* 
+    RED
+    --cs-50: 254 242 242;
+    --cs-100: 254 226 226;
+    --cs-200: 254 202 202;
+    --cs-300: 252 165 165;
+    --cs-400: 248 113 113;
+    --cs-500: 239 68 68;
+    --cs-600: 220 38 38;
+    --cs-700: 185 28 28;
+    --cs-800: 153 27 27;
+    --cs-900: 127 29 29;
+    --cs-950: 69 10 10; */
+
+    --cs-50: 255 247 237;
+    --cs-100: 255 237 213;
+    --cs-200: 254 215 170;
+    --cs-300: 253 186 116;
+    --cs-400: 251 146 60;
+    --cs-500: 249 115 22;
+    --cs-600: 234 88 12;
+    --cs-700: 194 65 12;
+    --cs-800: 154 52 18;
+    --cs-900: 124 45 18;
+    --cs-950: 67 20 7;
+
+    --primary-50: var(--cs-50);
+    --primary-100: var(--cs-100);
+    --primary-200: var(--cs-200);
+    --primary-300: var(--cs-300);
+    --primary-400: var(--cs-400);
+    --primary-500: var(--cs-500);
+    --primary-600: var(--cs-600);
+    --primary-700: var(--cs-700);
+    --primary-800: var(--cs-800);
+    --primary-900: var(--cs-900);
+    --primary-950: var(--cs-950);
+
+    --cs-surface-0: 255, 255, 255;
+    --cs-surface-50: 251, 252, 252;
+    --cs-surface-100: 247, 249, 248;
+    --cs-surface-200: 239, 243, 242;
+    --cs-surface-300: 218, 222, 221;
+    --cs-surface-400: 177, 183, 182;
+    --cs-surface-500: 130, 135, 135;
+    --cs-surface-600: 95, 114, 116;
+    --cs-surface-700: 65, 91, 97;
+    --cs-surface-800: 41, 68, 78;
+    --cs-surface-900: 24, 50, 64;
+    --cs-surface-950: 12, 25, 32;
+
+    --surface-0: var(--cs-surface-0);
+    --surface-50: var(--cs-surface-50);
+    --surface-100: var(--cs-surface-100);
+    --surface-200: var(--cs-surface-200);
+    --surface-300: var(--cs-surface-300);
+    --surface-400: var(--cs-surface-400);
+    --surface-500: var(--cs-surface-500);
+    --surface-600: var(--cs-surface-600);
+    --surface-700: var(--cs-surface-700);
+    --surface-800: var(--cs-surface-800);
+    --surface-900: var(--cs-surface-900);
+    --surface-950: var(--cs-surface-950);
+
+    --primary: var(--primary-500);
+    --primary-inverse: var(--surface-0);
+    --primary-hover: var(--primary-600);
+    --primary-active-color: var(--primary-600);
+
+    --primary-highlight-opacity: 0.1;
+    --primary-highlight-inverse: var(--primary-700);
+    --primary-highlight-hover-opacity: 0.2;
+}
+.dark{
+    --primary: var(--primary-400);
+    --primary-inverse: var(--surface-900);
+    --primary-hover: var(--primary-300);
+    --primary-active-color: var(--primary-300);
+
+    --primary-highlight-opacity: 0.2;
+    --primary-highlight-inverse: var(--surface-0);
+    --primary-highlight-hover-opacity: 0.3;
+}
+
+.customized-primary {
+    &:not(.dark){
+        --primary: var(--primary-950);
+        --primary-inverse: var(--surface-0);
+        --primary-hover: var(--primary-800);
+        --primary-active-color: var(--primary-900);
+
+        --primary-highlight-opacity: 1;
+        --primary-highlight-inverse: var(--surface-0);
+        --primary-highlight-hover-opacity: 0.8;
+    }
+    &.dark{
+        --primary: var(--primary-50);
+        --primary-inverse: var(--surface-950);
+        --primary-hover: var(--primary-100);
+        --primary-active-color: var(--primary-100);
+
+        --primary-highlight-opacity: 0.1;
+        --primary-highlight-inverse: var(--surface-0);
+        --primary-highlight-hover-opacity: 0.2;
+
+    }
 }

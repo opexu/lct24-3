@@ -1,5 +1,5 @@
 <template>
-<div class="w-full h-full flex justify-center items-center main-grad">
+<div class="w-full h-full flex justify-center items-center bg-surface-950">
     <div class="w-fit max-w-[40%] h-fit flex flex-col space-y-4">
         
         <!-- HEADER TEXT -->

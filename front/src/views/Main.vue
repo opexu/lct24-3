@@ -1,11 +1,11 @@
 <template>
 <Splitter ref="splitterRef" class="w-full max-w-full h-full border-0" :gutterSize="2"
-:pt="{ gutter: { class: 'bg-neutral-950 cursor-col-resize' }, gutterHandler: { class: 'bg-neutral-950 cursor-col-resize' }}"
+:pt="{ gutter: { class: 'bg-surface-900 cursor-col-resize' }, gutterHandler: { class: 'bg-surface-900 cursor-col-resize' }}"
 @resize="onSplitterResize"
 >
-    <SplitterPanel :size="30" :min-size="25" class="w-full h-full p-4 pr-2 flex flex-col space-y-4 bg-neutral-900"
+    <SplitterPanel :size="30" :min-size="25" class="w-full h-full p-4 pr-2 flex flex-col space-y-4 bg-surface-950"
     >
-        <div class="w-full h-fit flex flex-row justify-between">
+        <div class="w-full h-fit flex flex-row justify-between items-center">
             <Image class="max-w-[250px]"
             :src="LogoUrl"/>
             <UserInfo class="w-full h-fit"
@@ -13,19 +13,10 @@
             />
         </div>
         
-        <div class="w-full h-full p-4 flex flex-col rounded-lg bg-neutral-800">
-            <!-- <Panel class="h-full">
-                <template #footer>
-                    <UserInfo class="w-full h-fit"
-                    :user="userInfo"
-                    />
-                </template>
-            
-            </Panel>-->
-        </div> 
+        <Menu/>
         
     </SplitterPanel>
-    <SplitterPanel ref="splitterRightPanelRef" :size="70" class="w-full h-full p-4 pl-2 flex bg-neutral-900 outline-none">
+    <SplitterPanel ref="splitterRightPanelRef" :size="70" class="w-full h-full p-4 pl-2 flex outline-none bg-surface-950">
         <View3D ref="view3DRef"/>
         <!-- <div id="csRootRef" ref="csRootRef" class="w-full h-full rounded-lg"></div> -->
     </SplitterPanel>
@@ -44,6 +35,7 @@ import Panel from 'primevue/panel';
 import Image from 'primevue/image';
 import LogoUrl from '@/assets/Logo.png';
 import View3D from '@/components/View3D.vue';
+import Menu from '@/components/Menu.vue';
 
 const cookies = useCookiesStore();
 const userInfo = computed(() => cookies.get<IUser>( COOKIE_KEY.USER ) );

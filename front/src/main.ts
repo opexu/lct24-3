@@ -4,9 +4,10 @@ import 'primeicons/primeicons.css';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import VueCookies from 'vue-cookies';
-import PrimeVue from 'primevue/config';
+import Aura from '@/presets/aura';
 import Lara from '@/presets/lara';
-// import Wind from '@/presets/wind';
+import PrimeVue from 'primevue/config';
+
 import Tooltip from 'primevue/tooltip';
 import ToastService from 'primevue/toastservice';
 
@@ -18,9 +19,6 @@ app.use( createPinia() );
 app.use( VueCookies, { expires: '7d'} );
 app.use( router );
 app.use( ToastService );
-app.use( PrimeVue, {
-    unstyled: true,
-    pt: Lara
-} );
 app.directive('tooltip', Tooltip);
+app.use( PrimeVue, { unstyled: true, pt: Aura });
 app.mount('#app');

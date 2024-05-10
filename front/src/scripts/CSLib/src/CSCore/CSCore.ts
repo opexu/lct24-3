@@ -1,14 +1,18 @@
+import type { IDxf } from "dxf-parser";
 import { CAMERA_TYPE, CSCameraControls, type ICSCameraControls } from "../CSCameraControls";
 import { CSRender, type ICSRender } from "../CSRender";
 import { CSScene } from "../CSScene/CSScene";
 import type { ICSScene } from "../CSScene/ICSScene";
 import type { ICSCore } from "./ICSCore";
+import * as THREE from 'three';
+import { CSDXFParser } from "../CSUtils/CSDXFParser";
+import { CSBuilder } from "../CSBuilder/CSBuilder";
 
 export class CSCore implements ICSCore {
 
-    private readonly _csRender: ICSRender;
-    private readonly _csCameraControls: ICSCameraControls;
-    private readonly _csScene: ICSScene;
+    private readonly _CSRender: ICSRender;
+    private readonly _CSCameraControls: ICSCameraControls;
+    private readonly _CSScene: ICSScene;
     private readonly _animateCallback: FrameRequestCallback;
 
     constructor( 
@@ -19,11 +23,11 @@ export class CSCore implements ICSCore {
         const elHandler = document.createElement('div');
         elHandler.classList.add( 'absolute', 'w-full', 'h-full', 'top-0', 'left-0', 'rounded-lg' );
 
-        this._csScene = new CSScene( );
-        this._csCameraControls = new CSCameraControls( elHandler );
-        this._csScene.add( ...this._csCameraControls.Cameras );
+        this._CSScene = new CSScene( );
+        this._CSCameraControls = new CSCameraControls( elHandler );
+        this._CSScene.add( ...this._CSCameraControls.Cameras );
 
-        this._csRender = new CSRender( root, elHandler, this._csScene, this._csCameraControls.Camera );
+        this._CSRender = new CSRender( root, elHandler, this._CSScene, this._CSCameraControls.Camera );
 
         // const resizeObserver = new ResizeObserver( ( entries: ResizeObserverEntry[], observer: ResizeObserver ) => {
         //     this.resize( root.offsetWidth, root.offsetHeight );
@@ -36,18 +40,30 @@ export class CSCore implements ICSCore {
 
     public resize( width: number, height: number ): void {
         // console.log('resize observer width: ', width, ', height: ', height );
-        this._csCameraControls.resize( width, height );
-        this._csRender.resize( width, height );
+        this._CSCameraControls.resize( width, height );
+        this._CSRender.resize( width, height );
     }
 
     private _animate() {
         requestAnimationFrame( this._animateCallback );
-        this._csCameraControls.Controls.update();
-        this._csRender.render();
+        this._CSCameraControls.Controls.update();
+        this._CSRender.render();
     }
     
     public switchCamera( type: CAMERA_TYPE ): void {
-        this._csCameraControls.switchCamera( type );
-        this._csRender.setCamera( this._csCameraControls.Camera );
+        this._CSCameraControls.switchCamera( type );
+        this._CSRender.setCamera( this._CSCameraControls.Camera );
+    }
+
+    public setBackgroundColor( hex: string ): void {
+        this._CSScene.background = new THREE.Color( hex );
+    }
+    
+    public drawDxf( dxf: IDxf ): void {
+        const dxfParser = new CSDXFParser();
+        const dxfParsed = dxfParser.parse( dxf );
+        const csBuilder = new CSBuilder();
+        const cdObjects = dxfParsed.map( dp => csBuilder.createRaw( dp ) );
+        this._CSScene.add2D( ...cdObjects );
     }
 }

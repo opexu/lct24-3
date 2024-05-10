@@ -12,4 +12,5 @@ export interface ICSCameraControls {
     Controls: MapControls;
     switchCamera( type: CAMERA_TYPE ): void;
     resize( width: number, height: number ): void;
+    recenter( bbox: THREE.Box3 ): void;
 }

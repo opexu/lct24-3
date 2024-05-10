@@ -1,8 +1,8 @@
 <template>
-    <div class="w-full h-full flex flex-row space-x-2 rounded-lg">
+    <div class="w-full h-full flex flex-row space-x-2 text-surface-0">
         <div ref="csRootRef" class="rounded-lg"></div>
         <div ref="csRightPanelRef" class="w-fit h-full flex flex-col space-y-2">
-            <ToggleButton outlined
+            <!-- <ToggleButton outlined
             :pt="{
                 box: 'border bg-primary-300'
             }"
@@ -11,13 +11,11 @@
             v-model="is2D"
             v-tooltip.left="'Смена режима камеры'"
             @click=""
-            />
-            <ToggleButton
-            onLabel="2D" offLabel="3D"
+            /> -->
+            <Button :outlined="is2D"
             v-tooltip.left="'Выйти'"
-            v-model="is2D"
-            @click=""
-            />
+            @click="is2D = !is2D" 
+            >{{ is2D ? "2D" : "3D" }}</Button>
         </div>
     </div>
 </template>
@@ -27,7 +25,6 @@ import { useLogout } from '@/composables/useLogout';
 import { CAMERA_TYPE } from '@/scripts/CSLib/src/CSCameraControls';
 import { useCSStore } from '@/stores/cs-store';
 import Button from 'primevue/button';
-import ToggleButton from 'primevue/togglebutton';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 const logout = useLogout();
@@ -50,10 +47,14 @@ onMounted( async () => {
             logout.logout();
         }
     }
+
+    CSStore.CS?.setBackgroundColor( '#183240' );
 })
 
 const is2D = ref(false);
 watch( is2D, ( value ) => {
     CSStore.CS?.switchCamera( value ? CAMERA_TYPE.ORTHOGRAPHIC : CAMERA_TYPE.PERSPECTIVE );
 })
+
+
 </script>

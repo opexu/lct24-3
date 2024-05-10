@@ -124,4 +124,8 @@ export class CSCameraControls implements ICSCameraControls {
         this._controls.minAzimuthAngle = 0;
         this._controls.maxAzimuthAngle = 0;
     }
+
+    public recenter( bbox: THREE.Box3 ): void {
+        
+    }
 }

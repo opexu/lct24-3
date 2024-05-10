@@ -2,7 +2,7 @@
 <div class="flex flex-row justify-end items-center space-x-2">
     <p class="text-neutral-500">{{ user.email }}</p>
     
-    <Button icon="pi pi-times" severity="danger" text aria-label="Cancel"
+    <Button icon="pi pi-times" text aria-label="Cancel"
     v-tooltip.bottom="'Выйти'"
     @click="logout"
     />
