@@ -1,18 +1,17 @@
 import type { IArcEntity, ICircleEntity, IDxf, IEllipseEntity, IEntity, ILineEntity, ILwpolylineEntity, IPoint, IPointEntity, IPolylineEntity, ISplineEntity } from "dxf-parser";
 import * as THREE from 'three';
 import bSpline from './bspline';
-import { CSLineType, type CSObjectType } from "../../CSObjects/ICSObject";
+import { CSLineType, type CSDXFObjectType } from "../../CSObjects/CSDXFObject/ICSDXFObject";
 
 export interface IDxfParsedObj {
     color: number;
-    type: CSObjectType;
+    type: CSDXFObjectType;
     lineType: CSLineType;
     points: THREE.Vector3[];
     origin: THREE.Vector3;
 }
 
 export class CSDXFParser {
-    constructor() {}
 
     public parse( dxf: IDxf ): IDxfParsedObj[] {
 
@@ -70,7 +69,7 @@ export class CSDXFParser {
             if( !points || points.length === 0 ) continue;
             dxfBufferGeometryArr.push({
                 color: this._getColor( dxfEntity, dxf ),
-                type: dxfEntity.type as CSObjectType,
+                type: dxfEntity.type as CSDXFObjectType,
                 lineType: this._getLineType( dxfEntity, dxf ),
                 points: points,
                 origin: origin,
@@ -164,7 +163,7 @@ export class CSDXFParser {
 
     private _parseCircle( entity: ICircleEntity | IArcEntity ) {
         let startAngle, endAngle;
-        if (entity.type === 'CIRCLE') {
+        if ( entity.type === 'CIRCLE' ) {
             startAngle = entity.startAngle || 0;
             endAngle = startAngle + 2 * Math.PI;
         } else {

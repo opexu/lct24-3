@@ -16,6 +16,10 @@
             v-tooltip.left="'Выйти'"
             @click="is2D = !is2D" 
             >{{ is2D ? "2D" : "3D" }}</Button>
+            <Button outlined
+            v-tooltip.left="'Центрировать камеру'"
+            @click="recenterCamera" 
+            >О</Button>
         </div>
     </div>
 </template>
@@ -23,6 +27,7 @@
 <script setup lang="ts">
 import { useLogout } from '@/composables/useLogout';
 import { CAMERA_TYPE } from '@/scripts/CSLib/src/CSCameraControls';
+import { useCSDXFEvents } from '@/stores/_cs-events';
 import { useCSStore } from '@/stores/cs-store';
 import Button from 'primevue/button';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
@@ -56,5 +61,7 @@ watch( is2D, ( value ) => {
     CSStore.CS?.switchCamera( value ? CAMERA_TYPE.ORTHOGRAPHIC : CAMERA_TYPE.PERSPECTIVE );
 })
 
-
+function recenterCamera(){
+    CSStore.CS?.recenterCamera();
+}
 </script>

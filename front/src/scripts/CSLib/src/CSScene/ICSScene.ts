@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import type { CSObject } from '../CSObjects/CSObject';
-import type { CSObjectType } from '../CSObjects/ICSObject';
+import type { CSDXFObject } from '../CSObjects/CSDXFObject/CSDXFObject';
 
 export interface ICSScene extends THREE.Scene {
-    add2D( ...object: THREE.Object3D[] ): void;
-    add3D( ...object: THREE.Object3D[] ): void;
-    addCS<T extends CSObjectType>( ...object: CSObject<T>[] ): void;
+    RaycastGroup2D: THREE.Group;
+    RaycastGroup3D: THREE.Group;
+    addDxfObject( ...object: CSDXFObject[] ): void;
+    removeDxfObject( ...object: CSDXFObject[] ): void;
 }

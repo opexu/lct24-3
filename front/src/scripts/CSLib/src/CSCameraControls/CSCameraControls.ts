@@ -7,7 +7,6 @@ export class CSCameraControls implements ICSCameraControls {
     private readonly _controls: MapControls;
     private readonly _PCamera: THREE.PerspectiveCamera;
     private readonly _OCamera: THREE.OrthographicCamera;
-    private _ACamera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
     private _aspect: number;
 
     constructor(
@@ -16,63 +15,61 @@ export class CSCameraControls implements ICSCameraControls {
 
         const PCP = {
             fov: 50,
-            near: 1,
-            far: 10000,
+            near: 0.1,
+            far: 100000,
         };
         const OCP = {
             frustum: 50,
-            near: 1,
-            far: 10000,
         }
+        const startPos = 200;
         this._aspect = container.offsetWidth / container.offsetHeight;
         this._PCamera = new THREE.PerspectiveCamera( PCP.fov, this._aspect, PCP.near, PCP.far );
-        this._PCamera.position.set( 10, 10, 10 );
+        this._PCamera.position.set( startPos, startPos, startPos );
 
         this._OCamera = new THREE.OrthographicCamera( 0.5 * OCP.frustum, 0.5 * OCP.frustum, );
+        this._OCamera.position.set( startPos, startPos, startPos );
 
-        this._ACamera = this._PCamera;
-
-        this._controls = new MapControls( this._ACamera, container );
+        this._controls = new MapControls( this._PCamera, container );
         this._controls.mouseButtons = {
             // LEFT: THREE.MOUSE.PAN,
             MIDDLE: THREE.MOUSE.DOLLY,
             RIGHT: THREE.MOUSE.ROTATE
         }
+
+        this._setPerspectiveCamera();
     }
     
     get Cameras(){ return [ this._PCamera, this._OCamera ]; }
-    get Camera(){ return this._ACamera; }
+    get Camera(){ return this._controls.object as THREE.PerspectiveCamera | THREE.OrthographicCamera; }
     get Controls(){ return this._controls; }
 
     public switchCamera( type: CAMERA_TYPE ): void {
-        if( this._isPerpsCamera( this._ACamera ) ){
+        if( this._isPerpsCamera( this.Camera ) ){
             if( type === CAMERA_TYPE.PERSPECTIVE ) return;
             this._setOrthographicCamera();
-            this._ACamera = this._OCamera;
         }else{
             if( type === CAMERA_TYPE.ORTHOGRAPHIC ) return;
             this._setPerspectiveCamera();
-            this._ACamera = this._PCamera;
         }
         this._controls.update();
     }
 
     public resize( width: number, height: number ){
         this._aspect = width / height;
-        if( this._isPerpsCamera( this._ACamera ) ){
-            this._ACamera.aspect = this._aspect;
+        if( this._isPerpsCamera( this.Camera ) ){
+            this.Camera.aspect = this._aspect;
         }else{
-            const oldX = this._ACamera.right;
-            const oldY = this._ACamera.top;
+            const oldX = this.Camera.right;
+            const oldY = this.Camera.top;
             const oldAspect = oldX / oldY;
             const oX = oldX / oldAspect;
             const nX = oX * this._aspect;
 
-            this._ACamera.left = -nX;
-            this._ACamera.right = nX;
+            this.Camera.left = -nX;
+            this.Camera.right = nX;
         }
         
-        this._ACamera.updateProjectionMatrix();
+        this.Camera.updateProjectionMatrix();
         this._controls.update();
     }
 
@@ -98,7 +95,7 @@ export class CSCameraControls implements ICSCameraControls {
         
         this._controls.object = this._PCamera;
         this._controls.minPolarAngle = 0;
-        this._controls.maxPolarAngle = Math.PI;
+        this._controls.maxPolarAngle = Math.PI / 2.99;
         this._controls.minAzimuthAngle = Infinity;
         this._controls.maxAzimuthAngle = Infinity;
     }
@@ -106,6 +103,7 @@ export class CSCameraControls implements ICSCameraControls {
     private _setOrthographicCamera(){
         this._OCamera.position.copy( this._PCamera.position );
         
+        // если дистанция большая, то перестает работать, нужно фиксить
         const distance = this._PCamera.position.distanceTo( this._controls.target );
         const halfWidth = this._frustumWidthAtDistance( this._PCamera, distance ) / 2;
         const halfHeight = this._frustumHeightAtDistance( this._PCamera, distance ) / 2;
@@ -114,7 +112,7 @@ export class CSCameraControls implements ICSCameraControls {
         this._OCamera.bottom = -halfHeight;
         this._OCamera.left = -halfWidth;
         this._OCamera.right = halfWidth;
-        this._OCamera.zoom = 1;
+        this._OCamera.zoom = this._PCamera.zoom;
         this._OCamera.lookAt( this._controls.target );
         this._OCamera.updateProjectionMatrix();
 
@@ -126,6 +124,10 @@ export class CSCameraControls implements ICSCameraControls {
     }
 
     public recenter( bbox: THREE.Box3 ): void {
-        
+        const center = new THREE.Vector3();
+        bbox.getCenter( center );
+        center.setY( 0 );
+        this._controls.target.set( center.x, center.y, center.z );
+        this._controls.update();
     }
 }

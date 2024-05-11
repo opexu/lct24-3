@@ -1,162 +1,124 @@
 import * as THREE from 'three';
-import { CSLineType, CSObjectType, type CSObjectMap, type ICSObject } from "../CSObjects/ICSObject";
-import type { IDxfParsedObj } from "../CSUtils/CSDXFParser";
-import type { ICSBuilder } from "./ICSBuilder";
-import { CSObject } from '../CSObjects/CSObject';
+import { CSDXFObjectType, CSDXFObject, CSLineType } from '../CSObjects';
+import type { IDxfParsedObj } from '../CSUtils/CSDXFParser';
+import type { ICSBuilder } from './ICSBuilder';
 
 export class CSBuilder implements ICSBuilder {
-    
-    constructor(){
-        
-    }
-    create<T extends CSObjectType>( dxfObj: IDxfParsedObj ): CSObject<T> {
-        throw new Error( 'Method not implemented.' );
-    }
 
-    public createRaw( dxfObj: IDxfParsedObj ): THREE.Object3D {
+    public createDxfObject( dxfObj: IDxfParsedObj ): CSDXFObject {
         switch( dxfObj.type ){
-            case CSObjectType.POLYLINE: {
-                return this._createPolyline( dxfObj );
+            case CSDXFObjectType.POLYLINE:
+            case CSDXFObjectType.LWPOLYLINE:
+            case CSDXFObjectType.LINE: 
+            case CSDXFObjectType.ELLIPSE:
+            case CSDXFObjectType.SPLINE:
+            {
+                const opts = { radius: 40 }
+                const { object3D, raycastObject3D } = this._createPolyline( dxfObj, opts );
+                return new CSDXFObject( dxfObj.type, object3D, raycastObject3D );
             }
-            case CSObjectType.LWPOLYLINE: {
-                return this._createLwPolyline( dxfObj );
+            case CSDXFObjectType.ARC:
+            case CSDXFObjectType.CIRCLE: 
+            {
+                const opts = { radius: 40 }
+                const { object3D, raycastObject3D } = this._createArc( dxfObj, opts );
+                return new CSDXFObject( dxfObj.type, object3D, raycastObject3D );
             }
-            case CSObjectType.LINE: {
-                return this._createLine( dxfObj );
-            }
-            case CSObjectType.ARC: {
-                return this._createArc( dxfObj );
-            }
-            case CSObjectType.CIRCLE: {
-                return this._createCircle( dxfObj );
-            }
-            case CSObjectType.ELLIPSE: {
-                return this._createEllipse( dxfObj );
-            }
-            case CSObjectType.SPLINE: {
-                return this._createSpline( dxfObj );
-            }
-            case CSObjectType.POINT: {
-                return this._createPoint( dxfObj );
+            case CSDXFObjectType.POINT: 
+            {
+                const opts = { r1: 20, r2: 40 }
+                const { object3D, raycastObject3D } = this._createPoint( dxfObj, opts );
+                return new CSDXFObject( dxfObj.type, object3D, raycastObject3D );
             }
         }
     }
 
-    private _createPolyline( dxfObj: IDxfParsedObj ): THREE.Object3D {
-        const geometry = new THREE.BufferGeometry().setFromPoints( dxfObj.points );
-        geometry.rotateX( Math.PI / -2 );
+    private _createPolyline( dxfObj: IDxfParsedObj, opts: { radius: number } ): { object3D: THREE.Line, raycastObject3D: THREE.Mesh } {
+        const geometry = this._createBufferGeometry( dxfObj.points );
+        const line = this._createLine( geometry, dxfObj.color, dxfObj.lineType );
 
-        let material;
-        switch( dxfObj.lineType ){
-            case CSLineType.DASHED: {
-                material = new THREE.LineDashedMaterial({ color: dxfObj.color, gapSize: 4, dashSize: 4 });
-                break;
-            }
-            case CSLineType.NORMAL: {
-                material = new THREE.LineBasicMaterial({ linewidth: 1, color: dxfObj.color });
-                break;
-            }
-        }
+        // const isClosed = dxfObj.points[0] === dxfObj.points[ dxfObj.points.length - 1 ];
+        const isClosed = false;
+        const points = dxfObj.points.map( p => p );
+        // points.pop();
+        const curve = new THREE.CatmullRomCurve3( points, isClosed, 'catmullrom', 0 );
+        const geo = new THREE.TubeGeometry( curve, points.length * 10, opts.radius, 6, false );
+        this._rotateBG90( geo );
+        const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const mesh = new THREE.Mesh( geo, material );
 
-        const line = new THREE.Line( geometry, material );
-
-        return line;
+        return {
+            object3D: line,
+            raycastObject3D: mesh
+        };
     }
 
-    private _createLwPolyline( dxfObj: IDxfParsedObj ): THREE.Object3D {
+    private _createArc( dxfObj: IDxfParsedObj, opts: { radius: number } ): { object3D: THREE.Line, raycastObject3D: THREE.Mesh } {  
+        const geometry = this._createBufferGeometry( dxfObj.points );
+        const line = this._createLine( geometry, dxfObj.color, dxfObj.lineType );
 
-        const geometry = new THREE.BufferGeometry().setFromPoints( dxfObj.points );
-        geometry.rotateX( Math.PI / -2 );
+        line.position.x = dxfObj.origin.x;
+        line.position.y = dxfObj.origin.y;
+        line.position.z = dxfObj.origin.z;
 
-        let material;
-        switch( dxfObj.lineType ){
-            case CSLineType.DASHED: {
-                material = new THREE.LineDashedMaterial({ color: dxfObj.color, gapSize: 4, dashSize: 4 });
-                break;
-            }
-            case CSLineType.NORMAL: {
-                material = new THREE.LineBasicMaterial({ linewidth: 1, color: dxfObj.color });
-                break;
-            }
-        }
+        // const isClosed = dxfObj.points[0] === dxfObj.points[ dxfObj.points.length - 1 ];
+        const isClosed = true;
+        const curve = new THREE.CatmullRomCurve3( dxfObj.points, isClosed, 'catmullrom', 0 );
+        const geo = new THREE.TubeGeometry( curve, dxfObj.points.length, opts.radius, 8, false );
+        this._rotateBG90( geo );
+        const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const mesh = new THREE.Mesh( geo, material );
+        mesh.position.x = dxfObj.origin.x;
+        mesh.position.y = dxfObj.origin.y;
+        mesh.position.z = dxfObj.origin.z;
 
-        const line = new THREE.Line( geometry, material );
-        return line;
+        return {
+            object3D: line,
+            raycastObject3D: mesh
+        };
     }
 
-    private _createLine( dxfObj: IDxfParsedObj ): THREE.Object3D {
+    private _createPoint( dxfObj: IDxfParsedObj, opts: { r1: number, r2: number } ): { object3D: THREE.Mesh, raycastObject3D: THREE.Mesh } {
         
-        const geometry = new THREE.BufferGeometry().setFromPoints( dxfObj.points );
-        geometry.rotateX( Math.PI / -2 );
-
-        const material = new THREE.LineBasicMaterial({ linewidth: 1, color: dxfObj.color });
-
-        const line = new THREE.Line( geometry, material );
-        return line;
-    }
-
-    private _createArc( dxfObj: IDxfParsedObj ): THREE.Object3D {  
-        const geometry = new THREE.BufferGeometry().setFromPoints( dxfObj.points );
-        geometry.rotateX( Math.PI / -2 );
-
-        const material = new THREE.LineBasicMaterial({ color: dxfObj.color });
-
-        const arc = new THREE.Line(geometry, material);
-        arc.position.x = dxfObj.origin.x;
-        arc.position.y = dxfObj.origin.y;
-        arc.position.z = dxfObj.origin.z;
-
-        return arc;
-    }
-
-    private _createCircle( dxfObj: IDxfParsedObj ): THREE.Object3D {
-        const geometry = new THREE.BufferGeometry().setFromPoints( dxfObj.points );
-        geometry.rotateX( Math.PI / -2 );
-
-        const material = new THREE.LineBasicMaterial({ color: dxfObj.color });
-
-        const arc = new THREE.Line(geometry, material);
-        arc.position.x = dxfObj.origin.x;
-        arc.position.y = dxfObj.origin.y;
-        arc.position.z = dxfObj.origin.z;
-
-        return arc;
-    }
-
-    private _createEllipse( dxfObj: IDxfParsedObj ): THREE.Object3D{
-        const geometry = new THREE.BufferGeometry().setFromPoints( dxfObj.points );
-        geometry.rotateX( Math.PI / -2 );
-
-        const material = new THREE.LineBasicMaterial({ linewidth: 1, color: dxfObj.color });
-
-        // Create the final object to add to the scene
-        const ellipse = new THREE.Line(geometry, material);
-        return ellipse;
-    }
-
-    private _createSpline( dxfObj: IDxfParsedObj ): THREE.Object3D {
-        const geometry = new THREE.BufferGeometry().setFromPoints( dxfObj.points );
+        const geometry = new THREE.SphereGeometry( opts.r1, 8, 8 );
         this._rotateBG90( geometry );
-
-        const material = new THREE.LineBasicMaterial({ linewidth: 1, color: dxfObj.color });
-        const spline = new THREE.Line( geometry, material );
-
-
-        return spline;
-    }
-
-    private _createPoint( dxfObj: IDxfParsedObj ): THREE.Object3D {
-        const p = dxfObj.points[0];
-        const geometry = new THREE.BufferGeometry()
-            .setAttribute('position', new THREE.Float32BufferAttribute([ p.x, p.z, p.y ], 3 ));
+        geometry.computeBoundingBox();
         
-        const material = new THREE.PointsMaterial({ size: 0.1, color: dxfObj.color });
-        const point = new THREE.Points( geometry, material );
-        // const csObj = new CSObject( CSObjectType.POINT, point );
-        return point;
+        const mat1 = new THREE.MeshBasicMaterial({ color: dxfObj.color });
+        const point = new THREE.Mesh( geometry, mat1 );
+        
+        const p = dxfObj.points[0];
+        point.position.set( p.x, p.z, -p.y );
+
+        const geo = new THREE.SphereGeometry( opts.r2, 8, 8 );
+        this._rotateBG90( geo );
+        const mat2 = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const mesh = new THREE.Mesh( geo, mat2 );
+        mesh.position.copy( point.position );
+
+        return {
+            object3D: point,
+            raycastObject3D: mesh
+        };
     }
 
-    private _rotateBG90( bufferGeometry: THREE.BufferGeometry ){
+    private _createBufferGeometry( points: THREE.Vector3[] ){
+        const geometry = new THREE.BufferGeometry().setFromPoints( points );
+        this._rotateBG90( geometry );
+        geometry.computeBoundingBox();
+        return geometry;
+    }
+
+    private _createLine( geometry: THREE.BufferGeometry, color: number, lineType: CSLineType ){
+        const material = lineType === CSLineType.NORMAL
+            ? new THREE.LineBasicMaterial({ linewidth: 1, color })
+            : new THREE.LineDashedMaterial({ color, gapSize: 4, dashSize: 4 });
+
+        const line = new THREE.Line( geometry, material );
+        return line;
+    }
+
+    private _rotateBG90( bufferGeometry: THREE.BufferGeometry | THREE.Object3D ){
         bufferGeometry.rotateX( Math.PI / -2 );
     }
 }

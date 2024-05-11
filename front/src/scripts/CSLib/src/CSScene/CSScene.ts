@@ -1,13 +1,15 @@
 import type { ICSScene } from "./ICSScene";
 import * as THREE from 'three';
 import { InfiniteGridHelper } from "./InfiniteGridHelper";
-import type { CSObject } from "../CSObjects/CSObject";
-import type { CSObjectType } from "../CSObjects/ICSObject";
+import type { CSDXFObject } from "../CSObjects/CSDXFObject/CSDXFObject";
+import type { CSDXFObjectType } from "../CSObjects/CSDXFObject/ICSDXFObject";
 
 export class CSScene extends THREE.Scene implements ICSScene {
 
     private readonly _group2D: THREE.Group;
     private readonly _group3D: THREE.Group;
+    private readonly _raycastGroup2D: THREE.Group;
+    private readonly _raycastGroup3D: THREE.Group;
 
     constructor(){
         super();
@@ -21,19 +23,24 @@ export class CSScene extends THREE.Scene implements ICSScene {
 
         this._group2D = new THREE.Group();
         this._group3D = new THREE.Group();
+        this._raycastGroup2D = new THREE.Group();
+        this._raycastGroup3D = new THREE.Group();
 
-        this.add( this._group2D, this._group3D );
+        this.add( this._group2D, this._group3D, this._raycastGroup2D, this._raycastGroup3D );
     }
 
-    public add2D( ...object: THREE.Object3D[] ){
-        this._group2D.add( ...object );
+    get RaycastGroup2D(){ return this._raycastGroup2D; }
+    get RaycastGroup3D(){ return this._raycastGroup3D; }
+
+    public addDxfObject( ...object: CSDXFObject[] ): void {
+        this._group2D.add( ...object.map( o => o.Object2D ) );
+        this._raycastGroup2D.add( ...object.map( o => o.RaycastObject2D ) );
+
+        
     }
 
-    public add3D( ...object: THREE.Object3D[] ){
-        this._group3D.add( ...object );
-    }
-    
-    public addCS<T extends CSObjectType>( ...object: CSObject<T>[] ): void {
-       
+    public removeDxfObject( ...object: CSDXFObject[] ): void {
+        this._group2D.remove( ...object.map( o => o.Object2D ) );
+        this._raycastGroup2D.remove( ...object.map( o => o.RaycastObject2D ) );
     }
 }
