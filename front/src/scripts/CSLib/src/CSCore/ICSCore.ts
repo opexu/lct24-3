@@ -17,6 +17,7 @@ export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     clearDxf(): void;
     setMode( mode: CSMode ): boolean;
     removeDxfObject( ...object: CSDXFObject[] ): void;
+    CSDXFObjectsArr: ICSDXFObject[];
 }
 
 export enum CSEvent {

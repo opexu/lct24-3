@@ -9,6 +9,7 @@ export class CSObjectCache implements ICSObjectCache {
         
     }
     
+    get Map(){ return this._map; }
     get CSDXFObjectArr(){ return Array.from( this._map.values() ) }
 
     public add( csDxfObject: CSDXFObject ): void {

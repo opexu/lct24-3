@@ -6,6 +6,7 @@ import { CSLineType, type CSDXFObjectType } from "../../CSObjects/CSDXFObject/IC
 export interface IDxfParsedObj {
     color: number;
     type: CSDXFObjectType;
+    layer: string;
     lineType: CSLineType;
     points: THREE.Vector3[];
     origin: THREE.Vector3;
@@ -70,8 +71,9 @@ export class CSDXFParser {
             dxfBufferGeometryArr.push({
                 color: this._getColor( dxfEntity, dxf ),
                 type: dxfEntity.type as CSDXFObjectType,
+                layer: dxfEntity.layer,
                 lineType: this._getLineType( dxfEntity, dxf ),
-                points: points,
+                points: points.map( p => new THREE.Vector3( p.x, p.z, -p.y ) ),
                 origin: origin,
             });
         }

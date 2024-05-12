@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { CSDXFObject } from '../CSObjects/CSDXFObject/CSDXFObject';
 
 export interface ICSScene extends THREE.Scene {
+    Group2D: THREE.Group;
     RaycastGroup2D: THREE.Group;
     RaycastGroup3D: THREE.Group;
     addDxfObject( ...object: CSDXFObject[] ): void;

@@ -1,12 +1,15 @@
 <template>
 <div class="w-full h-fit flex flex-row space-x-2">
-    <input id="file-dxf" type="file" class="peer hidden" accept=".dxf"
-    :disabled="isLoaded"
-    @input="onDXFUpload"
-    >
-    <label for="file-dxf" class="w-full h-fit px-4 py-2 m-0 text-center text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
-    :class="[ isLocked ? 'bg-orange-100' : 'bg-inherit', isLoaded ? 'bg-primary-300/30' : 'bg-inherit' ]"
-    >Загрузить .DXF</label>
+    <div class="w-full h-fit flex flex-row">
+        <input id="file-dxf" type="file" class="peer hidden" accept=".dxf"
+        :disabled="isLoaded"
+        @input="onDXFUpload"
+        >
+        <label for="file-dxf" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-center text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
+        :class="[ isLocked ? 'bg-orange-100' : 'bg-inherit', isLoaded ? 'bg-primary-300/30' : 'bg-inherit' ]"
+        >Загрузить .DXF</label>
+    </div>
+    
     <Button outlined class="w-fit px-8 py-2"
     v-if="isLoaded"
     v-tooltip.down="'Очистить сцену'"
@@ -17,16 +20,15 @@
 
 <script setup lang="ts">
 import Button from 'primevue/button';
-import { useCSStore } from '@/stores/cs-store';
 import DxfParser from 'dxf-parser';
 import { ref } from 'vue';
+import { useDXFStore } from '@/stores/dxf-store';
 defineProps<{
     isLocked: boolean;
 }>();
 
-const CSStore = useCSStore();
-
 const isLoaded = ref(false);
+const DXFStore = useDXFStore();
 
 async function onDXFUpload( event: Event ){
 
@@ -57,15 +59,15 @@ async function onDXFUpload( event: Event ){
             return;
         }
         const dxf =  parser.parseSync( fileReader.result );
-        if( !dxf || !CSStore.CS ){
+        if( !dxf ){
             inputEl.value = '';
             return;
         }
         
-        console.log('dxf: ', dxf);
-        CSStore.CS.drawDxf( dxf );
         isLoaded.value = true;
         inputEl.value = '';
+
+        DXFStore.onDxfUploaded( dxf );
     })
     fileReader.addEventListener('error', ( event ) => {
         console.error('fileReader Error: ', event)
@@ -75,7 +77,7 @@ async function onDXFUpload( event: Event ){
 }
 
 function clearDxf(){
-    CSStore.CS?.clearDxf();
+    DXFStore.clearDxf();
     isLoaded.value = false;
 }
 </script>

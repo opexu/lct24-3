@@ -4,6 +4,7 @@ import type { ICSRaycastEvent, ICSRaycaster } from "./ICSRaycaster";
 import type { ICSCameraControls } from '../CSCameraControls';
 import type { ICSObjectCache } from '../CSCache';
 import { EventEmitter } from '../EventEmitter';
+import type { ICSTransform } from '../CSTransform/ICSTransform';
 
 export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRaycaster {
     
@@ -15,6 +16,7 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
     private readonly _CSScene: ICSScene;
     private readonly _CSCameraControls: ICSCameraControls;
     private readonly _CSObjectCache: ICSObjectCache;
+    private readonly _CSTransform: ICSTransform;
 
     private readonly _raycaster: THREE.Raycaster;
     private readonly _coords: THREE.Vector2;
@@ -24,6 +26,7 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
         CSScene: ICSScene,
         CSCameraControls: ICSCameraControls,
         CSObjectCache: ICSObjectCache,
+        CSTransform: ICSTransform,
     ){
         super();
 
@@ -35,9 +38,10 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
         this._CSScene = CSScene;
         this._CSCameraControls = CSCameraControls;
         this._CSObjectCache = CSObjectCache;
+        this._CSTransform = CSTransform;
 
         this._raycaster = new THREE.Raycaster();
-
+        this._raycaster.layers.set( 2 );
         this._coords = new THREE.Vector2();
 
         this.enable();
@@ -60,6 +64,7 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
     private _onClick( event: Event ){
         if( !(event instanceof PointerEvent)) return;
         if( event.buttons !== 1 ) return;
+        if( this._CSTransform.TransformControls.dragging ) return;
         
         const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
 
@@ -72,17 +77,10 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
         this._raycast( this._coords );
     }
 
-    public update(){
-        this._CSScene.RaycastGroup2D.children
-    }
-
     private _raycast( coords: THREE.Vector2 ): void {
-        // TODO layers
-        console.log('raycast')
         const camera = this._CSCameraControls.Camera;
         this._raycaster.setFromCamera( coords, camera );
-        const intersects = this._raycaster.intersectObjects( this._CSScene.RaycastGroup2D.children );
-
+        const intersects = this._raycaster.intersectObjects( this._CSScene.Group2D.children, true );
         if( intersects.length > 0 ){
             const csObject = this._CSObjectCache.get( intersects[0].object.id );
             if( !csObject ) return;
@@ -92,7 +90,7 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
                 csObject.select();
             }
         }else{
-            return;
+            this._CSObjectCache.Map.forEach( csObj => csObj.IsSelected && csObj.deselect() );
         }
     }
 

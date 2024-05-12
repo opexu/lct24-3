@@ -1,8 +1,9 @@
-import { CAMERA_TYPE, type ICSCameraControls } from "./ICSCameraControls";
+import { CAMERA_TYPE, CSCameraEventKey, type CSCameraEvent, type ICSCameraControls } from "./ICSCameraControls";
 import * as THREE from 'three';
 import { MapControls } from 'three/examples/jsm/controls/MapControls';
+import { EventEmitter } from "../EventEmitter";
 
-export class CSCameraControls implements ICSCameraControls {
+export class CSCameraControls extends EventEmitter<CSCameraEvent> implements ICSCameraControls {
 
     private readonly _controls: MapControls;
     private readonly _PCamera: THREE.PerspectiveCamera;
@@ -12,7 +13,7 @@ export class CSCameraControls implements ICSCameraControls {
     constructor(
         container: HTMLElement,
     ){
-
+        super();
         const PCP = {
             fov: 50,
             near: 0.1,
@@ -25,10 +26,12 @@ export class CSCameraControls implements ICSCameraControls {
         this._aspect = container.offsetWidth / container.offsetHeight;
         this._PCamera = new THREE.PerspectiveCamera( PCP.fov, this._aspect, PCP.near, PCP.far );
         this._PCamera.position.set( startPos, startPos, startPos );
-
+        this._PCamera.layers.enable( 1 );
+        this._PCamera.layers.enable( 2 );
         this._OCamera = new THREE.OrthographicCamera( 0.5 * OCP.frustum, 0.5 * OCP.frustum, );
         this._OCamera.position.set( startPos, startPos, startPos );
-
+        this._OCamera.layers.enable( 1 );
+        this._OCamera.layers.enable( 2 );
         this._controls = new MapControls( this._PCamera, container );
         this._controls.mouseButtons = {
             // LEFT: THREE.MOUSE.PAN,
@@ -52,6 +55,7 @@ export class CSCameraControls implements ICSCameraControls {
             this._setPerspectiveCamera();
         }
         this._controls.update();
+        this.emit( CSCameraEventKey.CAMERA_CHANGED, this.Camera );
     }
 
     public resize( width: number, height: number ){

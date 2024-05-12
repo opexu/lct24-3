@@ -6,12 +6,13 @@ import type { ICSScene } from "../CSScene/ICSScene";
 import { CSEvent, CSMode, type CSCoreEvent, type ICSCore } from "./ICSCore";
 import * as THREE from 'three';
 import { CSDXFParser } from "../CSUtils/CSDXFParser";
-import { CSBuilder } from "../CSBuilder/CSBuilder";
-import { CSDXFObject, CSDXFObjectEvent, type DXFObjectEvent } from "../CSObjects";
+import { CSDXFObject, CSDXFObjectEvent, type DXFObjectEvent, type ICSDXFObjectConstructorOpts } from "../CSObjects";
 import type { ICSRaycaster } from "../CSRaycaster/ICSRaycaster";
 import { CSRaycater } from "../CSRaycaster/CSRaycaster";
 import { CSObjectCache, type ICSObjectCache } from "../CSCache";
 import { EventEmitter } from "../EventEmitter";
+import type { ICSTransform } from "../CSTransform/ICSTransform";
+import { CSTransform } from "../CSTransform/CSTransform";
 
 export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     
@@ -23,6 +24,7 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     private readonly _CSScene: ICSScene;
     private readonly _CSRaycaster: ICSRaycaster;
     private readonly _CSObjectCache: ICSObjectCache;
+    private readonly _CSTransform: ICSTransform;
 
     private readonly _animateCallback: FrameRequestCallback;
 
@@ -43,8 +45,11 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
 
         this._CSObjectCache = new CSObjectCache();
 
-        this._CSRaycaster = new CSRaycater( elHandler, this._CSScene, this._CSCameraControls, this._CSObjectCache );
         
+        this._CSTransform = new CSTransform( elHandler, this._CSCameraControls );
+        this._CSRaycaster = new CSRaycater( elHandler, this._CSScene, this._CSCameraControls, this._CSObjectCache, this._CSTransform );
+        
+        this._CSScene.add( this._CSTransform.TransformControls );
         // const resizeObserver = new ResizeObserver( ( entries: ResizeObserverEntry[], observer: ResizeObserver ) => {
         //     this.resize( root.offsetWidth, root.offsetHeight );
         // });
@@ -56,6 +61,7 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
 
     get Mode(){ return this._mode; }
     get Bbox(){ return this._bbox; }
+    get CSDXFObjectsArr(){ return this._CSObjectCache.CSDXFObjectArr; }
 
     public resize( width: number, height: number ): void {
         // console.log('resize observer width: ', width, ', height: ', height );
@@ -85,15 +91,22 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     public drawDxf( dxf: IDxf ): void {
         const dxfParser = new CSDXFParser();
         const dxfParsed = dxfParser.parse( dxf );
-        const csBuilder = new CSBuilder();
         const csObjects = dxfParsed.map( dp => {
-            const csObj = csBuilder.createDxfObject( dp );
+            const opts: ICSDXFObjectConstructorOpts = {
+                color: dp.color,
+                type: dp.type,
+                layer: dp.layer,
+            }
+            const csObj = new CSDXFObject( dp.points, opts );
+            // const csObj = csBuilder.createDxfObject( dp );
             this._CSObjectCache.add( csObj );
             csObj.on( CSDXFObjectEvent.SELECT, ( event ) => {
-                this.emit( CSEvent.DXF_OBJ_SELECT, event )
+                this._CSTransform.attach( event );
+                this.emit( CSEvent.DXF_OBJ_SELECT, event );
             })
             csObj.on( CSDXFObjectEvent.DESELECT, ( event ) => {
-                this.emit( CSEvent.DXF_OBJ_DESELECT, event )
+                this._CSTransform.detach();
+                this.emit( CSEvent.DXF_OBJ_DESELECT, event );
             })
             return csObj;
         });

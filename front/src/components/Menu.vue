@@ -1,12 +1,15 @@
 <template>
-<div class="w-full h-full text-surface-0 rounded-lg flex flex-col space-y-2">
+<div class="w-full h-full text-white rounded-lg flex flex-col space-y-2">
     
     <Panel toggleable>
         <template #header>
             <span>Конструктор</span>
         </template>
         <template #default>
-            <DXFUploader class="w-full h-full relative" :is-locked="false"/>
+            <div class="w-full h-fit space-y-2">
+                <DXFUploader class="w-full h-full relative" :is-locked="false"/>
+                <DXFLayers v-if="DXFStore.HasDxf"/>
+            </div>
         </template>
         
     </Panel>
@@ -22,5 +25,8 @@
 
 <script setup lang="ts">
 import Panel from 'primevue/panel';
-import DXFUploader from './DXFUploader.vue';
+import DXFUploader from './DXF/DXFUploader.vue';
+import DXFLayers from './DXF/DXFLayers.vue';
+import { useDXFStore } from '@/stores/dxf-store';
+const DXFStore = useDXFStore();
 </script>

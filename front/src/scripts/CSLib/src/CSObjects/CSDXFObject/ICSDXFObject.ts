@@ -1,8 +1,15 @@
 import * as THREE from 'three';
 import type { IEventable } from '../../EventEmitter';
 
+export interface ICSDXFObjectConstructorOpts {
+    color: number,
+    type: CSDXFObjectType,
+    layer: string,
+}
+
 export interface ICSDXFObject extends IEventable<DXFObjectEvent> {
     ID: number;
+    DXFLayer: string;
     Type: CSDXFObjectType;
     Object2D: THREE.Object3D;
     RaycastObject2D: THREE.Object3D;
