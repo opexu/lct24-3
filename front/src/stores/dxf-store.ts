@@ -20,6 +20,7 @@ export const useDXFStore = defineStore( 'useDXFStore', () => {
     function clearDxf(){
         dxf.value = null;
         CS.value?.clearDxf();
+        CSStore.SelectedDXFCSArr = [];
     }
 
     const HasDxf = computed(() => dxf.value ? true : false );

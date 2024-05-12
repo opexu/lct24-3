@@ -20,6 +20,7 @@
             v-tooltip.left="'Центрировать камеру'"
             @click="recenterCamera" 
             >О</Button>
+            <TransformMode/>
         </div>
     </div>
 </template>
@@ -30,6 +31,7 @@ import { CAMERA_TYPE } from '@/scripts/CSLib/src/CSCameraControls';
 import { useCSDXFEvents } from '@/stores/_cs-events';
 import { useCSStore } from '@/stores/cs-store';
 import Button from 'primevue/button';
+import TransformMode from './TransformMode.vue';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 const logout = useLogout();

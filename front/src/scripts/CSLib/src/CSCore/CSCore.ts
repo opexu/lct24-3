@@ -11,13 +11,13 @@ import type { ICSRaycaster } from "../CSRaycaster/ICSRaycaster";
 import { CSRaycater } from "../CSRaycaster/CSRaycaster";
 import { CSObjectCache, type ICSObjectCache } from "../CSCache";
 import { EventEmitter } from "../EventEmitter";
-import type { ICSTransform } from "../CSTransform/ICSTransform";
+import { CSTransformEventKey, type ICSTransform } from "../CSTransform/ICSTransform";
 import { CSTransform } from "../CSTransform/CSTransform";
 
 export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     
     private _bbox = new THREE.Box3( new THREE.Vector3(), new THREE.Vector3() );
-    private _mode = CSMode.DXF;
+    private _mode = CSMode.SELECT;
 
     private readonly _CSRender: ICSRender;
     private readonly _CSCameraControls: ICSCameraControls;
@@ -47,6 +47,9 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
 
         
         this._CSTransform = new CSTransform( elHandler, this._CSCameraControls );
+        this._CSTransform.on( CSTransformEventKey.CHANGE, ( csdxfobj ) => {
+            this.emit( CSEvent.DXF_OBJ_TRANSFORM_UPDATE, csdxfobj );
+        })
         this._CSRaycaster = new CSRaycater( elHandler, this._CSScene, this._CSCameraControls, this._CSObjectCache, this._CSTransform );
         
         this._CSScene.add( this._CSTransform.TransformControls );
@@ -101,11 +104,20 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
             // const csObj = csBuilder.createDxfObject( dp );
             this._CSObjectCache.add( csObj );
             csObj.on( CSDXFObjectEvent.SELECT, ( event ) => {
-                this._CSTransform.attach( event );
+                if( this._CSObjectCache.Selected.length === 1 ){
+                    this._CSTransform.attach( event );
+                }else{
+                    this._CSTransform.detach();
+                }
+                
                 this.emit( CSEvent.DXF_OBJ_SELECT, event );
             })
             csObj.on( CSDXFObjectEvent.DESELECT, ( event ) => {
-                this._CSTransform.detach();
+                if( this._CSObjectCache.Selected.length === 1 ){
+                    this._CSTransform.attach( this._CSObjectCache.Selected[0] );
+                }else{
+                    this._CSTransform.detach();
+                }
                 this.emit( CSEvent.DXF_OBJ_DESELECT, event );
             })
             return csObj;
@@ -118,16 +130,32 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
         const csDxfObjectArr = this._CSObjectCache.CSDXFObjectArr;
         csDxfObjectArr.forEach( csdxf => {
             csdxf.dispose();
-        })
+        });
+        this._CSTransform.disable();
         this._CSScene.removeDxfObject( ...csDxfObjectArr );
         this._CSObjectCache.clear();
     }
 
     public setMode( newMode: CSMode ){
-        if( this._mode === newMode ) return false;
+        if( this._mode === newMode ) return;
         this._mode = newMode;
-        // TODO
-        return true;
+        switch( this._mode ){
+            case CSMode.SELECT: {
+                this._CSTransform.disable();
+                break;
+            }
+            case CSMode.EDIT: {
+                this._CSTransform.enable();
+                if( this._CSObjectCache.Selected.length === 1 ){
+                    this._CSTransform.attach( this._CSObjectCache.Selected[0] );
+                }
+                break;
+            }
+        }
+    }
+
+    public setTransformMode( mode: 'translate' | 'rotate' ) {
+        this._CSTransform.setMode( mode );
     }
 
     public removeDxfObject( ...object: CSDXFObject[] ): void {

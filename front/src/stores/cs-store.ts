@@ -19,6 +19,11 @@ export const useCSStore = defineStore( 'useCSStore', () => {
             if( index === -1 ) return;
             SelectedDXFCSArr.value.splice( index, 1 );
         });
+        _CS.value.on( CSEvent.DXF_OBJ_TRANSFORM_UPDATE, ( obj ) => {
+            const index = SelectedDXFCSArr.value.findIndex( csdxf => csdxf.ID === obj.ID );
+            if( index === -1 ) return;
+            SelectedDXFCSArr.value.splice( index, 1, obj );
+        })
     }
 
     function resize( width: number, height: number ){

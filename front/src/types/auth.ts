@@ -1,11 +1,11 @@
-import type { ICU } from "./strapi";
+import type { IDated } from "./strapi";
 
 export interface IAuthRes {
     jwt: string;
     user: IUser;
 }
 
-export interface IUser extends ICU {
+export interface IUser extends IDated {
     id: number;
     username: string;
     email: string;

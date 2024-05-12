@@ -11,6 +11,20 @@ export class CSObjectCache implements ICSObjectCache {
     
     get Map(){ return this._map; }
     get CSDXFObjectArr(){ return Array.from( this._map.values() ) }
+    get HasSelected(){
+        let hasSelected = false;
+        this._map.forEach( csDxfObj => {
+            if( csDxfObj.IsSelected ) hasSelected = true;
+        });
+        return hasSelected;
+    }
+    get Selected(){
+        const selected: CSDXFObject[] = [];
+        this._map.forEach( csDxfObj => {
+            if( csDxfObj.IsSelected ) selected.push( csDxfObj );
+        });
+        return selected;
+    }
 
     public add( csDxfObject: CSDXFObject ): void {
         if( this._map.has( csDxfObject.ID ) ){

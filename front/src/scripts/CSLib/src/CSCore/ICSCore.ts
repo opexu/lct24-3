@@ -4,7 +4,7 @@ import type { CAMERA_TYPE } from "../CSCameraControls";
 import type { CSDXFObject, ICSDXFObject } from '../CSObjects';
 import type { IEventEmitter } from '../EventEmitter';
 
-export enum CSMode { DXF, EDIT };
+export enum CSMode { SELECT, EDIT };
 
 export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     Mode: CSMode;
@@ -15,7 +15,8 @@ export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     setBackgroundColor( hex: string ): void;
     drawDxf( dxf: IDxf ): void;
     clearDxf(): void;
-    setMode( mode: CSMode ): boolean;
+    setMode( mode: CSMode ): void;
+    setTransformMode( mode: 'translate' | 'rotate' ): void;
     removeDxfObject( ...object: CSDXFObject[] ): void;
     CSDXFObjectsArr: ICSDXFObject[];
 }
@@ -23,9 +24,11 @@ export interface ICSCore extends IEventEmitter<CSCoreEvent> {
 export enum CSEvent {
     DXF_OBJ_SELECT = 'CSEvent.DXF_OBJ_SELECT',
     DXF_OBJ_DESELECT = 'CSEvent.DXF_OBJ_DESELECT',
+    DXF_OBJ_TRANSFORM_UPDATE = 'CSEvent.DXF_OBJ_TRANSFORM_UPDATE',
 }
 
 export interface CSCoreEvent {
     [CSEvent.DXF_OBJ_SELECT]: ICSDXFObject;
     [CSEvent.DXF_OBJ_DESELECT]: ICSDXFObject;
+    [CSEvent.DXF_OBJ_TRANSFORM_UPDATE]: ICSDXFObject;
 }

@@ -1,5 +1,10 @@
-import type { IAPI, API_KEY } from '@/types/api';
+import type { IAPI } from '@/types/api';
 import qs from 'qs';
+
+export enum API_KEY {
+    AUTH = 'auth',
+    ME = 'me',
+}
 
 export interface AUTH_API {
     [API_KEY.AUTH]: IAPI<any>;

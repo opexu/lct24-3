@@ -7,6 +7,16 @@ export interface ICSDXFObjectConstructorOpts {
     layer: string,
 }
 
+export interface ICSGeoProps {
+    id: number;
+    origin: THREE.Vector3;
+    angle: number;
+    width: number;
+    length: number;
+    layer: string;
+    type: CSDXFObjectType;
+}
+
 export interface ICSDXFObject extends IEventable<DXFObjectEvent> {
     ID: number;
     DXFLayer: string;
@@ -14,6 +24,8 @@ export interface ICSDXFObject extends IEventable<DXFObjectEvent> {
     Object2D: THREE.Object3D;
     RaycastObject2D: THREE.Object3D;
     IsSelected: boolean;
+    CanRotate: boolean;
+    GeoProps: ICSGeoProps;
     select(): void;
     deselect(): void;
     dispose(): void;

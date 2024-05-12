@@ -51,7 +51,20 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
     get Object2D(){ return this._object3D; }
     get RaycastObject2D(){ return this._raycastObject3D; }
     get IsSelected(){ return this._isSelected; }
-
+    get CanRotate(){ return this._type === CSDXFObjectType.POINT ? false : true }
+    get GeoProps(){
+        const size = new THREE.Vector3();
+        this._object3D.geometry.boundingBox?.getSize( size );
+        return {
+            id: this.ID,
+            origin: this._object3D.position,
+            angle: THREE.MathUtils.radToDeg( this._object3D.rotation.y ),
+            width: size.x,
+            length: size.z,
+            layer: this._dxfLayer,
+            type: this._type,
+        }
+    }
     public select(){
         this._isSelected = true;
         ( this._object3D.material as THREE.MeshBasicMaterial ).color = this._selectedColor;
