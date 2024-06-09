@@ -8,13 +8,11 @@ export interface IAxios<T,K = {}>{
     meta?: K,
 }
 
-export type IManyRelation<K, T> = {
-    [K:string]: K extends string ? { data: T } : never;
-}
-
-export type IOneRelation<K, T> = {
-    [K:string]: K extends string ? T : never;
-}
+export type IManyRelation<K extends string, T> = Record<K, { data: T }>;
+export type IOneRelation<K extends string, T> = Record<K,T>;
+// export type IOneRelation<K, T> = {
+//     [K:string]: K extends string ? T : never;
+// }
 
 export interface IDated {
     createdAt: string;

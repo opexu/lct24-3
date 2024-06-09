@@ -1,0 +1,79 @@
+{
+  "kind": "collectionType",
+  "collectionName": "mafs",
+  "info": {
+    "singularName": "maf",
+    "pluralName": "mafs",
+    "displayName": "Maf",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "maf_type": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::maf-type.maf-type"
+    },
+    "Image": {
+      "type": "string"
+    },
+    "VendorCode": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "AnalogSample": {
+      "type": "string"
+    },
+    "SampleCode": {
+      "type": "string"
+    },
+    "Dimensions": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "text"
+    },
+    "Price": {
+      "type": "decimal"
+    },
+    "Name": {
+      "type": "string"
+    },
+    "Units": {
+      "type": "string"
+    },
+    "TypeEquipment": {
+      "type": "string"
+    },
+    "SafetyZones": {
+      "type": "string"
+    },
+    "TechDocumentation": {
+      "type": "string"
+    },
+    "territory_types": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::territory-type.territory-type"
+    },
+    "age_categories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::age-category.age-category"
+    },
+    "provider": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::provider.provider"
+    },
+    "catalog": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::catalog.catalog"
+    }
+  }
+}

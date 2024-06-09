@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "playgrounds",
+  "info": {
+    "singularName": "playground",
+    "pluralName": "playgrounds",
+    "displayName": "Playground",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Status": {
+      "type": "string"
+    },
+    "Type": {
+      "type": "enumeration",
+      "enum": [
+        "Детская площадка",
+        "Спортивная площадка",
+        "Для тихого отдыха"
+      ]
+    },
+    "TypeComment": {
+      "type": "text"
+    },
+    "Square": {
+      "type": "decimal"
+    },
+    "yard_area": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::yard-area.yard-area"
+    }
+  }
+}

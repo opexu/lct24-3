@@ -111,7 +111,7 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
                 }
                 
                 this.emit( CSEvent.DXF_OBJ_SELECT, event );
-            })
+            });
             csObj.on( CSDXFObjectEvent.DESELECT, ( event ) => {
                 if( this._CSObjectCache.Selected.length === 1 ){
                     this._CSTransform.attach( this._CSObjectCache.Selected[0] );
@@ -119,7 +119,10 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
                     this._CSTransform.detach();
                 }
                 this.emit( CSEvent.DXF_OBJ_DESELECT, event );
-            })
+            });
+            csObj.on( CSDXFObjectEvent.UPDATED, ( event ) => {
+                this.emit( CSEvent.DXF_OBJ_UPDATED, event );
+            });
             return csObj;
         });
         csObjects.forEach( cso => this._bbox.union( cso.Object2D.geometry.boundingBox! ) );
@@ -163,6 +166,25 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     }
 
     private _onDXFObjectSelected( event: DXFObjectEvent ){
+        
+    }
 
+    public selectByLayers( layersArr: string[] ): void {
+        this._CSObjectCache.Map.forEach(( csdxf, id ) => {
+            !csdxf.IsSelected && layersArr.includes( csdxf.DXFLayer ) && csdxf.select();
+        });
+    }
+
+    public deselectByLayers( layersArr: string[] ): void {
+        this._CSObjectCache.Map.forEach(( csdxf, id ) => {
+            csdxf.IsSelected && layersArr.includes( csdxf.DXFLayer ) && csdxf.deselect();
+        })
+        this.emit( CSEvent.DXF_OBJ_DESELECT_ALL, null );
+    }
+
+    public deselectAll(): void {
+        this._CSObjectCache.Map.forEach(( csdxf, id ) => {
+            csdxf.IsSelected && csdxf.deselect();
+        })
     }
 }

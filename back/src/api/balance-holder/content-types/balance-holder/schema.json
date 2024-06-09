@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "balance_holders",
+  "info": {
+    "singularName": "balance-holder",
+    "pluralName": "balance-holders",
+    "displayName": "BalanceHolder",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string",
+      "unique": true
+    }
+  }
+}

@@ -1,5 +1,5 @@
 <template>
-<div class="w-full h-fit flex flex-col space-y-2">
+<div class="w-full h-fit flex flex-col gap-2">
     <CSPropsItem v-for="( geoProp ) in geoProps" :key="geoProp.id"
     :geoProp="geoProp"
     />
@@ -22,12 +22,14 @@ onMounted(() => {
     CSStore.CS?.on( CSEvent.DXF_OBJ_SELECT, onUpdate )
     CSStore.CS?.on( CSEvent.DXF_OBJ_DESELECT, onUpdate )
     CSStore.CS?.on( CSEvent.DXF_OBJ_TRANSFORM_UPDATE, onUpdate )
+    CSStore.CS?.on( CSEvent.DXF_OBJ_UPDATED, onUpdate )
     onUpdate();
 })
 onUnmounted(() => {
     CSStore.CS?.off( CSEvent.DXF_OBJ_SELECT, onUpdate )
     CSStore.CS?.off( CSEvent.DXF_OBJ_DESELECT, onUpdate )
     CSStore.CS?.off( CSEvent.DXF_OBJ_TRANSFORM_UPDATE, onUpdate )
+    CSStore.CS?.off( CSEvent.DXF_OBJ_UPDATED, onUpdate )
 })
 function onUpdate(){
     geoProps.value = SelectedDXFCSArr.value.map( csdxfobj => csdxfobj.GeoProps );

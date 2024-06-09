@@ -23,9 +23,13 @@ import Button from 'primevue/button';
 import DxfParser from 'dxf-parser';
 import { ref } from 'vue';
 import { useDXFStore } from '@/stores/dxf-store';
+import { useApi } from '@/composables/useAPI';
+import { PROJECT_API, PROJECT_KEY } from '@/api/project';
 defineProps<{
     isLocked: boolean;
 }>();
+
+const { strapipost } = useApi();
 
 const isLoaded = ref(false);
 const DXFStore = useDXFStore();
@@ -44,6 +48,8 @@ async function onDXFUpload( event: Event ){
         inputEl.value = '';
         return;
     }
+    
+    strapipost( PROJECT_API[PROJECT_KEY.POST_PROJECT], file, file.name );
     
     console.log('dxfFile: ', file)
     inputEl.value = '';

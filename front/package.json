@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@types/three": "^0.164.0",
-    "axios": "^1.6.8",
+    "axios": "^1.7.2",
     "dxf-parser": "^1.1.2",
     "pinia": "^2.1.7",
     "primeicons": "latest",

@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "grbcs",
+  "info": {
+    "singularName": "grbc",
+    "pluralName": "grbcs",
+    "displayName": "GRBC",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string",
+      "unique": true
+    }
+  }
+}

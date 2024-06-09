@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "maf_types",
+  "info": {
+    "singularName": "maf-type",
+    "pluralName": "maf-types",
+    "displayName": "MafType"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    }
+  }
+}

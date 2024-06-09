@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "territory_types",
+  "info": {
+    "singularName": "territory-type",
+    "pluralName": "territory-types",
+    "displayName": "TerritoryType"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    }
+  }
+}

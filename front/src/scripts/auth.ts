@@ -2,9 +2,7 @@ import axios, { AxiosError } from "axios";
 import type { IAuthError, IAuthResult, IAuthSuccess, IStrapiAuth } from "@/types/auth";
 import { useApi } from "@/composables/useAPI";
 import { COOKIE_KEY, useCookiesStore } from "@/stores/cookie-store";
-import { AUTH_API } from "@/api/auth";
-import type { API_KEY } from "@/types/api";
-import type { IAxiosStrapi } from "@/types/strapi";
+import { API_KEY, AUTH_API } from "@/api/auth";
 import type { NavigationGuardNext } from "vue-router";
 
 export async function isAuthenticated(): Promise<IAuthResult> {

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CSDXFObjectType, type DXFObjectEvent, type ICSDXFObject, type ICSDXFObjectConstructorOpts } from '.';
+import { EngineTypesArr, CSDXFObjectType, CSEngineType, type DXFObjectEvent, type ICSDXFObject, type ICSDXFObjectConstructorOpts } from '.';
 import { CSDXFObjectEvent } from '.';
 import { EventEmitter } from '../../EventEmitter/EventEmitter';
 import * as CSUtils from '../../CSUtils';
@@ -8,10 +8,13 @@ import * as CSBuilder from '../../CSUtils/CSBuilder/CSBuilder';
 export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFObject {
     
     private _isSelected: boolean;
+    private readonly _IS_CLOSED = true;
 
     private readonly _points: THREE.Vector3[];
 
     private readonly _type: CSDXFObjectType;
+    private _engineType: CSEngineType;
+    private _availableEngineTypes: CSEngineType[];
     private readonly _dxfLayer: string;
     private readonly _color: THREE.Color;
     private readonly _selectedColor: THREE.Color;
@@ -43,14 +46,20 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
         this._raycastObject3D.visible = false;
 
         this._isSelected = false;
+
+        this._availableEngineTypes = this._calcAvailableEngineTypes( this._type, this._IS_CLOSED );
+        this._engineType = this._defaultEngineType( this._type, this._IS_CLOSED );
     }
 
     get ID(){ return this._raycastObject3D.id; }
     get DXFLayer(){ return this._dxfLayer; }
     get Type(){ return this._type; }
+    get EngineType(){ return this._engineType; }
+    get AvailableEngineTypes(){ return this._availableEngineTypes; }
     get Object2D(){ return this._object3D; }
     get RaycastObject2D(){ return this._raycastObject3D; }
     get IsSelected(){ return this._isSelected; }
+    get IsClosed(){ return true; }
     get CanRotate(){ return this._type === CSDXFObjectType.POINT ? false : true }
     get GeoProps(){
         const size = new THREE.Vector3();
@@ -63,6 +72,7 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
             length: size.z,
             layer: this._dxfLayer,
             type: this._type,
+            engineType: this._engineType,
         }
     }
     public select(){
@@ -106,5 +116,42 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
                 return CSBuilder.Point( points[0], color, opts );
             }
         }
+    }
+
+    private _calcAvailableEngineTypes( type: CSDXFObjectType, isClosed: boolean ){
+        switch( type ){
+            case CSDXFObjectType.POLYLINE:
+            case CSDXFObjectType.LWPOLYLINE:
+            case CSDXFObjectType.ELLIPSE:
+            case CSDXFObjectType.SPLINE:
+            case CSDXFObjectType.ARC:
+            case CSDXFObjectType.CIRCLE: {
+                return isClosed ? EngineTypesArr : [ CSEngineType.POINT, CSEngineType.LINE ]
+            }
+            case CSDXFObjectType.LINE: return [ CSEngineType.LINE ];
+            case CSDXFObjectType.POINT: return [ CSEngineType.POINT ];
+        }
+    }
+
+    private _defaultEngineType( type: CSDXFObjectType, isClosed: boolean ){
+        switch( type ){
+            case CSDXFObjectType.POLYLINE:
+            case CSDXFObjectType.LWPOLYLINE:
+            case CSDXFObjectType.ELLIPSE:
+            case CSDXFObjectType.SPLINE:
+            case CSDXFObjectType.ARC:
+            case CSDXFObjectType.CIRCLE: {
+                return isClosed ? CSEngineType.REGION : CSEngineType.LINE;
+            }
+            case CSDXFObjectType.LINE: return CSEngineType.LINE;
+            case CSDXFObjectType.POINT: return CSEngineType.POINT;
+        }
+    }
+
+    public assignEngineType( engineType: CSEngineType ): void {
+        if( engineType === this._engineType ) return;
+        if( !this._availableEngineTypes.includes( engineType ) ) return;
+        this._engineType = engineType;
+        this.emit( CSDXFObjectEvent.UPDATED, this );
     }
 }

@@ -18,17 +18,24 @@ export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     setMode( mode: CSMode ): void;
     setTransformMode( mode: 'translate' | 'rotate' ): void;
     removeDxfObject( ...object: CSDXFObject[] ): void;
+    selectByLayers( layersArr: string[] ): void;
+    deselectAll(): void;
+    deselectByLayers( layersArr: string[] ): void;
     CSDXFObjectsArr: ICSDXFObject[];
 }
 
 export enum CSEvent {
     DXF_OBJ_SELECT = 'CSEvent.DXF_OBJ_SELECT',
     DXF_OBJ_DESELECT = 'CSEvent.DXF_OBJ_DESELECT',
+    DXF_OBJ_DESELECT_ALL = 'CSEvent.DXF_OBJ_DESELECT_ALL',
     DXF_OBJ_TRANSFORM_UPDATE = 'CSEvent.DXF_OBJ_TRANSFORM_UPDATE',
+    DXF_OBJ_UPDATED = 'CSEvent.DXF_OBJ_UPDATED',
 }
 
 export interface CSCoreEvent {
     [CSEvent.DXF_OBJ_SELECT]: ICSDXFObject;
     [CSEvent.DXF_OBJ_DESELECT]: ICSDXFObject;
+    [CSEvent.DXF_OBJ_DESELECT_ALL]: null;
     [CSEvent.DXF_OBJ_TRANSFORM_UPDATE]: ICSDXFObject;
+    [CSEvent.DXF_OBJ_UPDATED]: ICSDXFObject;
 }

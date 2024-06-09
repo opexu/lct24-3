@@ -41,6 +41,7 @@ watch( selectedDxfLayers, ( value, oldvalue ) => {
     // const min = isAdded ? oldvalue : value;
     // const diff = max.filter( m => !min.includes( m ) );
     const layersNames = diff.map( d => d.layer.name );
-    CSStore.CS?.CSDXFObjectsArr.filter( csdxf => ( layersNames.includes( csdxf.DXFLayer ) && ( isAdded ? !csdxf.IsSelected : csdxf.IsSelected ) )).forEach( csdxf => ( isAdded ? csdxf.select() : csdxf.deselect() ))
+    isAdded ? CSStore.CS?.selectByLayers( layersNames ) : CSStore.CS?.deselectByLayers( layersNames )
+    // CSStore.CS?.CSDXFObjectsArr.filter( csdxf => ( layersNames.includes( csdxf.DXFLayer ) && ( isAdded ? !csdxf.IsSelected : csdxf.IsSelected ) )).forEach( csdxf => ( isAdded ? csdxf.select() : csdxf.deselect() ))
 })
 </script>

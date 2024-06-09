@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "yard_areas",
+  "info": {
+    "singularName": "yard-area",
+    "pluralName": "yard-areas",
+    "displayName": "YardArea",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "text"
+    },
+    "balance_holder": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::balance-holder.balance-holder"
+    },
+    "grbc": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::grbc.grbc"
+    },
+    "region": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::region.region"
+    },
+    "district": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::district.district"
+    },
+    "Square": {
+      "type": "decimal"
+    }
+  }
+}

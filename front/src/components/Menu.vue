@@ -1,20 +1,33 @@
 <template>
-<div class="w-full h-full text-white rounded-lg flex flex-col space-y-2">
+<div class="w-full h-full text-white rounded-lg flex flex-col gap-2 overflow-hidden">
     
+    <Panel toggleable>
+        <template #header>
+            <span>Загрузить файлы</span>
+        </template>
+        <template #default>
+            <div class="w-full h-fit gap-2">
+                <MAFUploader class="w-full h-full relative" :is-locked="false"/>
+            </div>
+        </template>
+    </Panel>
+
     <Panel toggleable>
         <template #header>
             <span>Конструктор</span>
         </template>
         <template #default>
-            <div class="w-full h-fit space-y-2">
+            <div class="w-full h-fit gap-2">
                 <DXFUploader class="w-full h-full relative" :is-locked="false"/>
                 <DXFLayers v-if="DXFStore.HasDxf"/>
             </div>
         </template>
-        
     </Panel>
     
-    <Panel toggleable>
+    <Panel toggleable class="h-full flex flex-col overflow-hidden"
+    :pt="{ toggleablecontent: 'h-full overflow-hidden pb-4', content: 'h-full overflow-auto' }"
+    :pt-options="{ mergeProps: true }"
+    >
         <template #header>
             <span>Свойства</span>
         </template>
@@ -43,13 +56,15 @@ import { storeToRefs } from 'pinia';
 import { useApi } from '@/composables/useAPI';
 import { TEST_API, TEST_KEY } from '@/api/test';
 import type { ISAFMaterialWithColors } from '@/scripts/SAF/ISAFMaterial';
+import type { IAxios } from '@/types/strapi';
+import MAFUploader from './MAFUploader.vue';
 const DXFStore = useDXFStore();
 const CSStore = useCSStore();
 const { SelectedDXFCSArr } = storeToRefs( CSStore );
 
 async function loadMat(){
     type M = TEST_API[TEST_KEY.GET_MAT];
-    const res = await useApi().strapiget<ISAFMaterialWithColors[], M>( TEST_API[TEST_KEY.GET_MAT], 1 )
+    const res = await useApi().strapiget<IAxios<ISAFMaterialWithColors[]>, M>( TEST_API[TEST_KEY.GET_MAT], 1 )
     const materials = res.data.data;
     if( materials ){
         console.log('materials[0].attributes.Title: ', materials[0].attributes.Title);
@@ -58,10 +73,10 @@ async function loadMat(){
 }
 async function loadGeo(){
     type G = TEST_API[TEST_KEY.GET_GEO];
-    const res = await useApi().strapiget<any[], G>( TEST_API[TEST_KEY.GET_GEO], 1 )
+    const res = await useApi().strapiget<IAxios<any[]>, G>( TEST_API[TEST_KEY.GET_GEO], 1 )
     const geos = res.data.data;
     if( geos ){
-        
+        console.log('geos: ', geos)
     }
 }
 </script>
