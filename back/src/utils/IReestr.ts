@@ -1,3 +1,4 @@
+import * as STRAPI from '@strapi/strapi';
 import type { IManyRelation, IOneRelation, IStrapi } from "./strapi";
 
 export interface ITitle { Title: string; }
@@ -25,8 +26,12 @@ export interface IYardAreaDb extends ITitleDb {
 }
 export type IYardAreaFull = IYardArea & IYardAreaRelations;
 
-export interface IDistrict extends ITitle {} // ЗАО
-export interface IDistrictDb extends ITitleDb {}
+export interface IDistrict extends ITitle {
+    FundingLimit?: number;
+} // ЗАО
+export interface IDistrictDb extends ITitleDb {
+    funding_limit?: number;
+}
 
 export interface IGRBC extends ITitle {}// Префектура ЗАО
 export interface IGRBCDb extends ITitleDb {}
@@ -36,13 +41,21 @@ export interface IRegionDb extends ITitleDb {}
 //#endregion
 
 //#region IPlayground - Плоскостное сооружение | Площадка
+export interface IPoint2D { x: number, y: number }
+export type IMultiDimArray<T> = T | IMultiDimArray<T>[];
+export interface ICoords { coords: IMultiDimArray<IPoint2D> };
+export interface IMinMax { min: number, max: number };
 export type IPlaygroundYardAreaRelation = IOneRelation<'yard_area', IStrapi<IYardArea>>;
-export type IPlaygroundRelations = IPlaygroundYardAreaRelation;
+export type IPlaygroundMafRelation = IManyRelation<'mafs', IStrapi<IMaf>>;
+export type IPlaygroundRelations = IPlaygroundYardAreaRelation & IPlaygroundMafRelation;
 export interface IPlayground {
     Status: string; // Утвержден
     Type: 'Детская площадка' | 'Спортивная площадка' | 'Для тихого отдыха';
     TypeComment?: string;
     Square: number;
+    Coords?: string;
+    MinMax?: string;
+    FundingLimit?: number;
 }
 export interface IPlaygroundDb {
     id: number;
@@ -50,7 +63,11 @@ export interface IPlaygroundDb {
     type: 'Детская площадка' | 'Спортивная площадка' | 'Для тихого отдыха';
     type_comment?: string;
     square: number;
+    coords?: string;
+    min_max?: string;
+    funding_limit?: number;
 }
+
 export type IPlaygroundFull = IPlayground & IPlaygroundRelations;
 //#endregion
 

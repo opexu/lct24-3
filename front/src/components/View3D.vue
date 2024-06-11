@@ -13,7 +13,7 @@
             @click=""
             /> -->
             <Button :outlined="is2D"
-            v-tooltip.left="'Выйти'"
+            v-tooltip.left="'Изменить камеру. Для движения используйте ПКМ + Shift'"
             @click="is2D = !is2D" 
             >{{ is2D ? "2D" : "3D" }}</Button>
             <Button outlined

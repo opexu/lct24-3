@@ -1,4 +1,4 @@
-import type { IManyRelation, IOneRelation, IStrapi } from "@/types/strapi";
+import type { IManyRelation, IOneRelation, IStrapi } from "./strapi";
 
 export interface ITitle { Title: string; }
 export interface ITitleDb { title: string; }
@@ -25,8 +25,12 @@ export interface IYardAreaDb extends ITitleDb {
 }
 export type IYardAreaFull = IYardArea & IYardAreaRelations;
 
-export interface IDistrict extends ITitle {} // ЗАО
-export interface IDistrictDb extends ITitleDb {}
+export interface IDistrict extends ITitle {
+    FundingLimit?: number;
+} // ЗАО
+export interface IDistrictDb extends ITitleDb {
+    funding_limit?: number;
+}
 
 export interface IGRBC extends ITitle {}// Префектура ЗАО
 export interface IGRBCDb extends ITitleDb {}
@@ -36,13 +40,22 @@ export interface IRegionDb extends ITitleDb {}
 //#endregion
 
 //#region IPlayground - Плоскостное сооружение | Площадка
-export type IPlaygroundYardAreaRelation = IOneRelation<'yard_area', IStrapi<IYardArea>>;
-export type IPlaygroundRelations = IPlaygroundYardAreaRelation;
+export interface IPoint2D { x: number, y: number }
+// export type IMultiDimArray<T> = T[] | IMultiDimArray<T>[];
+export type IMultiDimArray<T> = T[] | T[][];
+export interface ICoords { coords: IMultiDimArray<IPoint2D> };
+export interface IMinMax { min: number, max: number };
+export type IPlaygroundYardAreaRelation = IOneRelation<'yard_area', IStrapi<IYardAreaFull>>;
+export type IPlaygroundMafRelation = IManyRelation<'mafs', IStrapi<IMaf>>;
+export type IPlaygroundRelations = IPlaygroundYardAreaRelation & IPlaygroundMafRelation;
 export interface IPlayground {
     Status: string; // Утвержден
     Type: 'Детская площадка' | 'Спортивная площадка' | 'Для тихого отдыха';
     TypeComment?: string;
     Square: number;
+    Coords?: IMultiDimArray<IPoint2D>;
+    MinMax?: IMinMax;
+    FundingLimit?: number;
 }
 export interface IPlaygroundDb {
     id: number;
@@ -50,14 +63,18 @@ export interface IPlaygroundDb {
     type: 'Детская площадка' | 'Спортивная площадка' | 'Для тихого отдыха';
     type_comment?: string;
     square: number;
+    coords?: string;
+    min_max?: string;
+    funding_limit?: number;
 }
+
 export type IPlaygroundFull = IPlayground & IPlaygroundRelations;
 //#endregion
 
 //#region Maf
 export type IMafTypeRelation = IOneRelation<'maf_type', IStrapi<IMafType>>;
 export type IMafPlaygroundRelation = IOneRelation<'playground', IStrapi<IPlayground>>;
-export type IMafCatalogMafRelation = IOneRelation<'catalog_maf', IStrapi<ICatalogMaf>>;
+export type IMafCatalogMafRelation = IOneRelation<'catalog', IStrapi<ICatalog>>;
 export type IMafProviderRelation = IOneRelation<'provider', IStrapi<IProvider>>;
 export type IMafTerritoryTypesRelation = IManyRelation<'territory_types', IStrapi<ITerritoryType>[]>;
 export type IMafAgeCategoryRelation = IOneRelation<'age_categories', IStrapi<IAgeCategory>[]>;
@@ -71,7 +88,6 @@ export interface IMaf {
     Description: string; // description - Примечание
     Price: number; // price - Цена МАФ
     Name: string; // name - Наименование МАФ
-    Type: string; // type - Тип МАФ
     Units: string; // units - Ед. измерения
     TypeEquipment: string; // typeEquipment - Тип оборудования
     SafetyZones: string; // safetyZones - Имя файла зон безопасности
@@ -96,7 +112,7 @@ export interface IMafDb {
     price: number,
     name: string,
     // provider: string,
-    type: string,
+    // type: string,
     units: string,
     type_equipment: string,
     safety_zones: string,
@@ -106,11 +122,12 @@ export interface IMafDb {
 export type IMafFull = IMaf & IMafRelations;
 
 export interface IMafType extends ITitle {}
+export interface IMafTypeDb extends ITitleDb {}
 //#endregion
 
-//#region CatalogMaf - Каталог
-export interface ICatalogMaf extends ITitle {}
-export interface ICatalogMafDb extends ITitleDb {}
+//#region Catalog - Каталог
+export interface ICatalog extends ITitle {}
+export interface ICatalogDb extends ITitleDb {}
 //#endregion
 
 //#region IProviderMaf - Поставщик

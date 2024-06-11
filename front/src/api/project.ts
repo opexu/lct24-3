@@ -2,21 +2,20 @@ import qs from 'qs';
 import type { IAPI, IAPIPOST } from "@/types/api"
 
 export enum PROJECT_KEY {
-    POST_PROJECT = 'POST_PROJECT',
+    POST_PROJECT_XLSX = 'POST_PROJECT_XLSX',
 }
 
 export interface PROJECT_API {
-    [PROJECT_KEY.POST_PROJECT]: IAPIPOST<[File,string]>
+    [PROJECT_KEY.POST_PROJECT_XLSX]: IAPIPOST<[File]>
 }
 
 export const PROJECT_API: PROJECT_API = {
-    POST_PROJECT: {
-        url: "/backend/api/projects",
-        handler: function( file: File, Title: string ){
+    POST_PROJECT_XLSX: {
+        url: "/backend/api/project/upload",
+        handler: function( file: File ){
             const formData = new FormData();
-            formData.append(`files.DXFS`, file, file.name);
-            const data = { Title };
-            formData.append('data', JSON.stringify( data ));
+            formData.set(`files.File`, file, file.name);
+            formData.append('data', JSON.stringify({ fileName: file.name }));
             return formData;
         }
     }

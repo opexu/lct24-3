@@ -22,20 +22,20 @@ export function useApi(){
         return res;
     }
 
-    async function strapipost<K, T extends IAPIPOST<any>>( api: T, ...params: Parameters<T['handler']> ): Promise<AxiosResponse<IAxios<K>, any>> {
+    async function strapipost<K, T extends IAPIPOST<any> | IAPI<any>>( api: T, ...params: Parameters<T['handler']> ): Promise<AxiosResponse<K, any>> {
         
         console.log('params: ', params)
         const config: AxiosRequestConfig = {
             url: api.url,
             method: 'post',
             data: api.handler( ...params ),
-            transformRequest: [
-                ( data ) => data,
-            ]
+            // transformRequest: [
+            //     ( data ) => data,
+            // ]
         };
         if( cookies.isKey( COOKIE_KEY.JWT ) ) config.headers = { Authorization: `Bearer ${cookies.get(COOKIE_KEY.JWT)}` };
         
-        const res = await axios<IAxios<K>>( config );
+        const res = await axios<K>( config );
         console.log('post res: ', res)
         return res;
     }

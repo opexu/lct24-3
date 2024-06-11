@@ -7,7 +7,7 @@ export enum API_KEY {
 }
 
 export interface AUTH_API {
-    [API_KEY.AUTH]: IAPI<any>;
+    [API_KEY.AUTH]: IAPI<[string, string]>;
     [API_KEY.ME]: IAPI<any>;
 }
 
@@ -15,7 +15,11 @@ export const AUTH_API: AUTH_API = {
 
     auth: {
         url: "/backend/api/auth/local",
-        handler: () => '',
+        handler: function( identifier: string, password: string ){
+            const obj = { identifier, password };
+            console.log('obj: ', obj)
+            return obj;
+        },
     },
 
     me: {

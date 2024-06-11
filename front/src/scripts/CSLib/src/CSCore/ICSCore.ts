@@ -3,12 +3,16 @@ import type { IDxf } from "dxf-parser";
 import type { CAMERA_TYPE } from "../CSCameraControls";
 import type { CSDXFObject, ICSDXFObject } from '../CSObjects';
 import type { IEventEmitter } from '../EventEmitter';
+import type { ICSBorderObject, ICSBorderObjectConstructorOpts } from '../CSObjects/CSBorderObject';
+import type { IStrapi } from '@/types/strapi';
+import type { IPlayground, IPlaygroundFull } from '@/types/IReestr';
 
 export enum CSMode { SELECT, EDIT };
 
 export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     Mode: CSMode;
     Bbox: THREE.Box3;
+    HasBorders: boolean;
     resize( width: number, height: number ): void;
     switchCamera( type: CAMERA_TYPE ): void;
     recenterCamera(): void;
@@ -21,6 +25,8 @@ export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     selectByLayers( layersArr: string[] ): void;
     deselectAll(): void;
     deselectByLayers( layersArr: string[] ): void;
+    drawBorders( playground: IStrapi<IPlaygroundFull> ): void;
+    removeBorders(): void;
     CSDXFObjectsArr: ICSDXFObject[];
 }
 

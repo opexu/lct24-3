@@ -40,4 +40,5 @@ export enum API {
     PROVIDER = 'api::provider.provider',
     MAF_TYPE = 'api::maf-type.maf-type',
     TERRITORY_TYPE = 'api::territory-type.territory-type',
+    PLAYGROUND = 'api::playground.playground',
 }

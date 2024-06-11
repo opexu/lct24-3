@@ -33,6 +33,20 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::yard-area.yard-area"
+    },
+    "Coords": {
+      "type": "json"
+    },
+    "MinMax": {
+      "type": "json"
+    },
+    "mafs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::maf.maf"
+    },
+    "FundingLimit": {
+      "type": "decimal"
     }
   }
 }

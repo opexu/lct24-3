@@ -13,11 +13,17 @@ import { CSObjectCache, type ICSObjectCache } from "../CSCache";
 import { EventEmitter } from "../EventEmitter";
 import { CSTransformEventKey, type ICSTransform } from "../CSTransform/ICSTransform";
 import { CSTransform } from "../CSTransform/CSTransform";
+import { CSBorderObject, type ICSBorderObject, type ICSBorderObjectConstructorOpts } from "../CSObjects/CSBorderObject";
+import type { IStrapi } from "@/types/strapi";
+import type { IMultiDimArray, IPlaygroundFull, IPoint2D } from "@/types/IReestr";
+import { PlaygroundCoordsParser } from "../CSUtils";
 
 export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     
     private _bbox = new THREE.Box3( new THREE.Vector3(), new THREE.Vector3() );
     private _mode = CSMode.SELECT;
+
+    private _hasBorders = false;
 
     private readonly _CSRender: ICSRender;
     private readonly _CSCameraControls: ICSCameraControls;
@@ -64,6 +70,7 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
 
     get Mode(){ return this._mode; }
     get Bbox(){ return this._bbox; }
+    get HasBorders(){ return this._hasBorders; }
     get CSDXFObjectsArr(){ return this._CSObjectCache.CSDXFObjectArr; }
 
     public resize( width: number, height: number ): void {
@@ -135,10 +142,38 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
             csdxf.dispose();
         });
         this._CSTransform.disable();
-        this._CSScene.removeDxfObject( ...csDxfObjectArr );
+        // this._CSScene.removeDxfObject( ...csDxfObjectArr );
+        this._CSScene.Group2D.clear();
         this._CSObjectCache.clear();
     }
 
+    public drawBorders( playground: IStrapi<IPlaygroundFull> ): void {
+        if( this._CSScene.BorderGroup.getObjectByName( playground.id.toString() ) ){
+            console.warn('Объект уже существует в сцене');
+            return;
+        }
+        const coords = playground.attributes.Coords; 
+        if( !coords ){
+            console.warn('Координаты отсутствуют');
+            return
+        }
+
+        const multiPointsArr = PlaygroundCoordsParser( coords );
+        console.log('multiPointsArr', multiPointsArr)
+        if( !multiPointsArr || multiPointsArr.length === 0 ) return;
+
+        this._hasBorders = true;
+        const csBorderObjArr = multiPointsArr.map( points => new CSBorderObject( points, { playground }));
+        csBorderObjArr.forEach( cso => this._bbox.union( cso.Object2D.geometry.boundingBox! ));
+        this._CSScene.addBorderObject( ...csBorderObjArr );
+    }
+
+    public removeBorders(): void {
+        // TODO dispose
+        this._CSScene.BorderGroup.clear();
+        this._hasBorders = false;
+    }
+    
     public setMode( newMode: CSMode ){
         if( this._mode === newMode ) return;
         this._mode = newMode;

@@ -15,6 +15,9 @@
     "Title": {
       "type": "string",
       "unique": true
+    },
+    "FundingLimit": {
+      "type": "float"
     }
   }
 }

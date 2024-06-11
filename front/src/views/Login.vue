@@ -56,10 +56,9 @@
 </template>
 
 <script setup lang="ts">
-import { AUTH_API } from '@/api/auth';
+import { API_KEY, AUTH_API } from '@/api/auth';
 import { useApi } from '@/composables/useAPI';
 import { COOKIE_KEY, useCookiesStore } from '@/stores/cookie-store';
-import type { API_KEY, IAPI } from '@/types/api';
 import type { IAuthRes } from '@/types/auth';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -86,10 +85,8 @@ const message = ref({
 async function submitLogin(){
 
     try{
-        const loginRes = await strapipost<IAuthRes, AUTH_API[API_KEY.AUTH]>( AUTH_API.auth, {
-            identifier: login.value,
-            password: password.value,
-        } );
+        const loginRes = await strapipost<IAuthRes, AUTH_API[API_KEY.AUTH]>( AUTH_API.auth, login.value, password.value );
+            
         cookies.set( COOKIE_KEY.USER, loginRes.data.user );
         cookies.set( COOKIE_KEY.JWT, loginRes.data.jwt );
         isAuthError.value = isAuthError.value ? false : true;

@@ -19,14 +19,14 @@
         <div class="relative w-full max-h-full flex flex-col gap-2 overflow-hiden">
             
             <!-- БАЛАНСОДЕРЖАТЕЛИ & РАЙОН & ГРБС & ОКРУГ ИЗ XLSX -->
-            <Panel toggleable>
+            <Panel toggleable collapsed>
             <template #header>
                 <span class="mr-4 text-white">Балансодержатели, районы, ГРБС, округи</span>
             </template>
             <template #default>
                 <div><p class="text-sm text-surface-500">
                     Загрузка производится из файлов .xlsx, в которых есть поля в шапке файла<br>
-                    'Балансодержатель', 'Район', 'ГРБС', 'Округ'
+                    <b>'Балансодержатель', 'Район', 'ГРБС', 'Округ'</b>
                 </p></div>
                 <div class="w-full h-fit mt-5 flex flex-row">
                     <input id="file-1" type="file" class="peer hidden" accept=".xlsx"
@@ -41,15 +41,15 @@
             </Panel>
             
             <!-- ДВОРОВЫЕ ТЕРРИТОРИИ ИЗ XLSX -->
-            <Panel toggleable>
+            <Panel toggleable collapsed>
             <template #header>
                 <span class="mr-4 text-white">Дворовые территории</span>
             </template>
             <template #default>
                 <div><p class="text-sm text-surface-500">
                     Загрузка производится из файлов .xlsx, в которых есть поля в шапке файла<br>
-                    'Идентификатор родительского объекта', 'Наименование', 'Общая площадь, кв.м', 
-                    'Балансодержатель', 'Район', 'ГРБС', 'Округ'
+                    <b>'Идентификатор родительского объекта', 'Наименование', 'Общая площадь, кв.м', 
+                    'Балансодержатель', 'Район', 'ГРБС', 'Округ'</b>
                 </p></div>
                 <div class="w-full h-fit mt-5 flex flex-row">
                     <input id="file-2" type="file" class="peer hidden" accept=".xlsx"
@@ -64,14 +64,14 @@
             </Panel>
 
             <!-- ПЛОСКОСТНЫЕ СООРУЖЕНИЯ ИЗ XLSX -->
-            <Panel toggleable>
+            <Panel toggleable collapsed>
             <template #header>
                 <span class="mr-4 text-white">Плоскостные сооружения</span>
             </template>
             <template #default>
                 <div><p class="text-sm text-surface-500">
                     Загрузка производится из файлов .xlsx, в которых есть поля в шапке файла<br>
-                    'ID плоскостного сооружения', 'Статус', 'Тип (назначение)', 'Уточнение', 'Идентификатор родительского объекта', 'Общая площадь, кв.м', 
+                    <b>'ID плоскостного сооружения', 'Статус', 'Тип (назначение)', 'Уточнение', 'Идентификатор родительского объекта', 'Общая площадь, кв.м'</b>
                 </p></div>
                 <div class="w-full h-fit mt-5 flex flex-row">
                     <input id="file-3" type="file" class="peer hidden" accept=".xlsx"
@@ -85,8 +85,30 @@
             </template>
             </Panel>
 
+            <!-- КООРДИНАТЫ ПЛОСКОСТНЫХ СООРУЖЕНИЯ ИЗ XLSX -->
+            <Panel toggleable collapsed>
+            <template #header>
+                <span class="mr-4 text-white">Координаты полигонов плоскостных сооружений</span>
+            </template>
+            <template #default>
+                <div><p class="text-sm text-surface-500">
+                    Загрузка производится из файлов .xlsx, в которых есть поля в шапке файла<br>
+                    <b>'АСУ ОДС Идентификатор', 'Полигоны в АСУ ОДС (план-схемы)'</b>
+                </p></div>
+                <div class="w-full h-fit mt-5 flex flex-row">
+                    <input id="file-4" type="file" class="peer hidden" accept=".xlsx"
+                    :disabled="isLoaded"
+                    @input="onPlaygroundCoordsUpload"
+                    >
+                    <label for="file-4" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-start text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
+                    :class="[ isLocked ? 'bg-orange-100' : 'bg-inherit', isLoaded ? 'bg-primary-300/30' : 'bg-inherit' ]"
+                    >Загрузить</label>
+                </div>
+            </template>
+            </Panel>
+
             <!-- РЕЛЯЦИИ МАФОВ -->
-            <Panel toggleable>
+            <Panel toggleable collapsed>
             <template #header>
                 <span class="mr-4 text-white">Каталоги, Поставщики, Типы МАФов, Типы территорий</span>
             </template>
@@ -96,11 +118,11 @@
                     в который необходимо положить файлы из каталога МАФ (1010001.xml, 1010002.xml и т.д.)
                 </p></div>
                 <div class="w-full h-fit mt-5 flex flex-row">
-                    <input id="file-4" type="file" class="peer hidden" accept=".zip"
+                    <input id="file-5" type="file" class="peer hidden" accept=".zip"
                     :disabled="isLoaded"
                     @input="onMAFRelationsUpload"
                     >
-                    <label for="file-4" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-start text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
+                    <label for="file-5" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-start text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
                     :class="[ isLocked ? 'bg-orange-100' : 'bg-inherit', isLoaded ? 'bg-primary-300/30' : 'bg-inherit' ]"
                     >Загрузить</label>
                 </div>
@@ -108,7 +130,7 @@
             </Panel>
 
             <!-- АРХИВ МАФОВ -->
-            <Panel toggleable>
+            <Panel toggleable collapsed>
             <template #header>
                 <span class="mr-4 text-white">Каталог МАФ</span>
             </template>
@@ -118,11 +140,55 @@
                     в который необходимо положить файлы из каталога МАФ (1010001.xml, 1010002.xml и т.д.)
                 </p></div>
                 <div class="w-full h-fit mt-5 flex flex-row">
-                    <input id="file-5" type="file" class="peer hidden" accept=".zip"
+                    <input id="file-6" type="file" class="peer hidden" accept=".zip"
                     :disabled="isLoaded"
                     @input="onMAFUpload"
                     >
-                    <label for="file-5" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-start text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
+                    <label for="file-6" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-start text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
+                    :class="[ isLocked ? 'bg-orange-100' : 'bg-inherit', isLoaded ? 'bg-primary-300/30' : 'bg-inherit' ]"
+                    >Загрузить</label>
+                </div>
+            </template>
+            </Panel>
+
+            <!-- ЛИМИТЫ ФИНАНСИРОВАНИЯ -->
+            <Panel toggleable collapsed>
+            <template #header>
+                <span class="mr-4 text-white">Лимиты финансирования</span>
+            </template>
+            <template #default>
+                <div><p class="text-sm text-surface-500">
+                    Загрузка производится из файлов .xlsx, в которых есть поля в шапке файла<br>
+                    <b>'Идентификатор родительского объекта', 'Лимит финансирования (у.е.)'</b>
+                </p></div>
+                <div class="w-full h-fit mt-5 flex flex-row">
+                    <input id="file-7" type="file" class="peer hidden" accept=".xlsx"
+                    :disabled="isLoaded"
+                    @input="onPlaygroundLimitsUpload"
+                    >
+                    <label for="file-7" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-start text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
+                    :class="[ isLocked ? 'bg-orange-100' : 'bg-inherit', isLoaded ? 'bg-primary-300/30' : 'bg-inherit' ]"
+                    >Загрузить</label>
+                </div>
+            </template>
+            </Panel>
+
+            <!-- ТЕКУЩЕЕ НАПОЛНЕНИЕ -->
+            <Panel toggleable collapsed>
+            <template #header>
+                <span class="mr-4 text-white">Текущее наполнение</span>
+            </template>
+            <template #default>
+                <div><p class="text-sm text-surface-500">
+                    Загрузка производится из файлов .xlsx, в которых есть поля в шапке файла<br>
+                    <b>'ID МАФ', 'Принадлежность элемента к зоне территории'</b> 
+                </p></div>
+                <div class="w-full h-fit mt-5 flex flex-row">
+                    <input id="file-8" type="file" class="peer hidden" accept=".xlsx"
+                    :disabled="isLoaded"
+                    @input="onPlaygroundMafsUpload"
+                    >
+                    <label for="file-8" class="w-full h-fit px-4 py-2 m-0 align-bottom leading-[normal] text-start text-primary-500 border border-primary-500 rounded-md cursor-pointer peer-[&:not([disabled])]:hover:bg-primary-300/10"
                     :class="[ isLocked ? 'bg-orange-100' : 'bg-inherit', isLoaded ? 'bg-primary-300/30' : 'bg-inherit' ]"
                     >Загрузить</label>
                 </div>
@@ -196,6 +262,20 @@ async function onPlaygroundUpload( event: Event ){
     inputEl.value = '';
 }
 
+async function onPlaygroundCoordsUpload( event: Event ){
+    const inputEl = <HTMLInputElement> event.target;
+    const file = _getInputFile( inputEl );
+    if( !file ) return;
+
+    try{
+        const res = await strapipost( PLAYGROUND_API[PLAYGROUND_KEY.POST_PLAYGROUND_COORDS_XLSX], file );
+    }catch(e){
+        console.error('Ошибка загрузки файла балансодержателя');
+    }
+    
+    inputEl.value = '';
+}
+
 async function onMAFUpload( event: Event ){
     const inputEl = <HTMLInputElement> event.target;
     const file = _getInputFile( inputEl );
@@ -217,6 +297,34 @@ async function onMAFRelationsUpload( event: Event ){
     
     try{
         const res = await strapipost( MAF_API[MAF_KEY.POST_MAF_RELATIONS_ZIP], file );
+    }catch(e){
+        console.error('Ошибка загрузки файлов maf')
+    }
+    
+    inputEl.value = '';
+}
+
+async function onPlaygroundMafsUpload( event: Event ){
+    const inputEl = <HTMLInputElement> event.target;
+    const file = _getInputFile( inputEl );
+    if( !file ) return;
+    
+    try{
+        const res = await strapipost( PLAYGROUND_API[PLAYGROUND_KEY.POST_PLAYGROUND_MAFS_XLSX], file );
+    }catch(e){
+        console.error('Ошибка загрузки файлов maf')
+    }
+    
+    inputEl.value = '';
+}
+
+async function onPlaygroundLimitsUpload( event: Event ){
+    const inputEl = <HTMLInputElement> event.target;
+    const file = _getInputFile( inputEl );
+    if( !file ) return;
+    
+    try{
+        const res = await strapipost( PLAYGROUND_API[PLAYGROUND_KEY.POST_PLAYGROUND_LIMITS_XLSX], file );
     }catch(e){
         console.error('Ошибка загрузки файлов maf')
     }

@@ -5,9 +5,9 @@
     <Dropdown class="w-fit md:w-20rem"
     v-model="selectedEngineType"
     :options="csdxf.AvailableEngineTypes" 
-    placeholder="Выбрать типы"
+    placeholder="Выбрать площадку"
     @change="onTypeChange"
-    />
+    ></Dropdown>
 </div>
 </template>
 
