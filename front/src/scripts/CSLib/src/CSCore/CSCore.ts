@@ -6,7 +6,7 @@ import type { ICSScene } from "../CSScene/ICSScene";
 import { CSEvent, CSMode, type CSCoreEvent, type ICSCore } from "./ICSCore";
 import * as THREE from 'three';
 import { CSDXFParser } from "../CSUtils/CSDXFParser";
-import { CSDXFObject, CSDXFObjectEvent, type DXFObjectEvent, type ICSDXFObjectConstructorOpts } from "../CSObjects";
+import { CSMafObject, type ICSDXFObjectConstructorOpts, CSDXFObject, type ICSDXFObject, type ICSMafObject, CSDXFObjectEvent, CSMafObjectEvent, type ICSObject, IsMaf } from "../CSObjects";
 import type { ICSRaycaster } from "../CSRaycaster/ICSRaycaster";
 import { CSRaycater } from "../CSRaycaster/CSRaycaster";
 import { CSObjectCache, type ICSObjectCache } from "../CSCache";
@@ -15,8 +15,9 @@ import { CSTransformEventKey, type ICSTransform } from "../CSTransform/ICSTransf
 import { CSTransform } from "../CSTransform/CSTransform";
 import { CSBorderObject, type ICSBorderObject, type ICSBorderObjectConstructorOpts } from "../CSObjects/CSBorderObject";
 import type { IStrapi } from "@/types/strapi";
-import type { IMultiDimArray, IPlaygroundFull, IPoint2D } from "@/types/IReestr";
+import type { IDxfParsedMafObj, IMafFull, IMultiDimArray, IPlaygroundFull, IPoint2D } from "@/types/IReestr";
 import { PlaygroundCoordsParser } from "../CSUtils";
+import { CSCollision, type ICSCollision } from "../CSCollision";
 
 export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     
@@ -29,10 +30,12 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     private readonly _CSCameraControls: ICSCameraControls;
     private readonly _CSScene: ICSScene;
     private readonly _CSRaycaster: ICSRaycaster;
-    private readonly _CSObjectCache: ICSObjectCache;
+    private readonly _CSObjectCache: ICSObjectCache<ICSObject>;
     private readonly _CSTransform: ICSTransform;
-
+    private readonly _CSCollision: ICSCollision;
     private readonly _animateCallback: FrameRequestCallback;
+
+    private _csBorderObjectsArr: ICSBorderObject[] = [];
 
     constructor( 
         root: HTMLDivElement,
@@ -50,11 +53,11 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
         this._CSRender = new CSRender( root, elHandler, this._CSScene, this._CSCameraControls.Camera );
 
         this._CSObjectCache = new CSObjectCache();
-
         
         this._CSTransform = new CSTransform( elHandler, this._CSCameraControls );
-        this._CSTransform.on( CSTransformEventKey.CHANGE, ( csdxfobj ) => {
-            this.emit( CSEvent.DXF_OBJ_TRANSFORM_UPDATE, csdxfobj );
+        this._CSTransform.on( CSTransformEventKey.CHANGE, ( csobj ) => {
+            this._CSCollision.update( csobj );
+            this.emit( CSEvent.TRANSFORM_UPDATE, csobj );
         })
         this._CSRaycaster = new CSRaycater( elHandler, this._CSScene, this._CSCameraControls, this._CSObjectCache, this._CSTransform );
         
@@ -64,6 +67,8 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
         // });
         // resizeObserver.observe( root );
         
+        this._CSCollision = new CSCollision();
+
         this._animateCallback = this._animate.bind( this )
         this._animate();
     }
@@ -71,8 +76,7 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
     get Mode(){ return this._mode; }
     get Bbox(){ return this._bbox; }
     get HasBorders(){ return this._hasBorders; }
-    get CSDXFObjectsArr(){ return this._CSObjectCache.CSDXFObjectArr; }
-
+    get CSObjectsArr(){ return this._CSObjectCache.CSObjectArr; }
     public resize( width: number, height: number ): void {
         // console.log('resize observer width: ', width, ', height: ', height );
         this._CSCameraControls.resize( width, height );
@@ -117,7 +121,7 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
                     this._CSTransform.detach();
                 }
                 
-                this.emit( CSEvent.DXF_OBJ_SELECT, event );
+                this.emit( CSEvent.SELECT, event );
             });
             csObj.on( CSDXFObjectEvent.DESELECT, ( event ) => {
                 if( this._CSObjectCache.Selected.length === 1 ){
@@ -125,22 +129,67 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
                 }else{
                     this._CSTransform.detach();
                 }
-                this.emit( CSEvent.DXF_OBJ_DESELECT, event );
+                this.emit( CSEvent.DESELECT, event );
             });
             csObj.on( CSDXFObjectEvent.UPDATED, ( event ) => {
-                this.emit( CSEvent.DXF_OBJ_UPDATED, event );
+                this.emit( CSEvent.UPDATED, event );
             });
             return csObj;
         });
-        csObjects.forEach( cso => this._bbox.union( cso.Object2D.geometry.boundingBox! ) );
-        this._CSScene.addDxfObject( ...csObjects );
+        csObjects.forEach( cso => {
+            this._bbox.union( cso.Object2D.geometry.boundingBox! );
+            this._CSCollision.add( cso );
+        });
+        this._CSScene.addCSObject( ...csObjects );
+    }
+
+    public drawMaf( parsedMafGeo: IDxfParsedMafObj, mafInfo: IStrapi<IMafFull> ): void {
+        if( this._CSObjectCache.has( mafInfo.id ) ){
+            console.warn(`Маф с ID: ${mafInfo.id} уже находится в сцене`);
+            return;
+        }
+        const csObj = new CSMafObject( parsedMafGeo, { maf: mafInfo });
+        this._CSObjectCache.add( csObj );
+        csObj.on( CSMafObjectEvent.SELECT, ( event ) => {
+            if( this._CSObjectCache.Selected.length === 1 ){
+                this._CSTransform.attach( event );
+            }else{
+                this._CSTransform.detach();
+            }
+            
+            this.emit( CSEvent.SELECT, event );
+        });
+        csObj.on( CSMafObjectEvent.DESELECT, ( event ) => {
+            if( this._CSObjectCache.Selected.length === 1 ){
+                this._CSTransform.attach( this._CSObjectCache.Selected[0] );
+            }else{
+                this._CSTransform.detach();
+            }
+            this.emit( CSEvent.DESELECT, event );
+        });
+        csObj.on( CSMafObjectEvent.UPDATED, ( event ) => {
+            this.emit( CSEvent.UPDATED, event );
+        });
+        this._bbox.union( csObj.Object2D.geometry.boundingBox! );
+        this._CSCollision.add( csObj );
+        this._CSScene.addCSObject( csObj );
+    }
+
+    public removeMaf( id: number ): void {
+        if( !this._CSObjectCache.has( id ) ){
+            console.warn(`Маф с ID: ${id} отсутствует в сцене`);
+            return;
+        }
+        const csObj = this._CSObjectCache.get( id )!;
+        csObj.deselect();
+        this._CSCollision.remove( csObj );
+        this._CSScene.removeCSObject( csObj );
+        this._CSObjectCache.remove( csObj );
+        csObj.dispose();
     }
 
     public clearDxf(): void {
-        const csDxfObjectArr = this._CSObjectCache.CSDXFObjectArr;
-        csDxfObjectArr.forEach( csdxf => {
-            csdxf.dispose();
-        });
+        this._CSObjectCache.CSObjectArr.forEach( cs => cs.dispose() );
         this._CSTransform.disable();
         // this._CSScene.removeDxfObject( ...csDxfObjectArr );
         this._CSScene.Group2D.clear();
@@ -164,12 +213,18 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
 
         this._hasBorders = true;
         const csBorderObjArr = multiPointsArr.map( points => new CSBorderObject( points, { playground }));
-        csBorderObjArr.forEach( cso => this._bbox.union( cso.Object2D.geometry.boundingBox! ));
+        csBorderObjArr.forEach( cso => {
+            this._bbox.union( cso.Object2D.geometry.boundingBox! )
+            this._CSCollision.add( cso );
+        });
+        this._csBorderObjectsArr.push( ...csBorderObjArr );
         this._CSScene.addBorderObject( ...csBorderObjArr );
     }
 
     public removeBorders(): void {
         // TODO dispose
+        this._csBorderObjectsArr.forEach( cso => this._CSCollision.remove( cso ) );
+        this._csBorderObjectsArr = [];
         this._CSScene.BorderGroup.clear();
         this._hasBorders = false;
     }
@@ -196,25 +251,22 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
         this._CSTransform.setMode( mode );
     }
 
-    public removeDxfObject( ...object: CSDXFObject[] ): void {
+    public removeDxfObject( ...object: CSMafObject[] ): void {
        // TODO
-    }
-
-    private _onDXFObjectSelected( event: DXFObjectEvent ){
-        
     }
 
     public selectByLayers( layersArr: string[] ): void {
         this._CSObjectCache.Map.forEach(( csdxf, id ) => {
-            !csdxf.IsSelected && layersArr.includes( csdxf.DXFLayer ) && csdxf.select();
+            !IsMaf( csdxf ) && !csdxf.IsSelected && layersArr.includes( csdxf.DXFLayer ) && csdxf.select();
         });
     }
 
     public deselectByLayers( layersArr: string[] ): void {
         this._CSObjectCache.Map.forEach(( csdxf, id ) => {
-            csdxf.IsSelected && layersArr.includes( csdxf.DXFLayer ) && csdxf.deselect();
+            !IsMaf( csdxf ) && csdxf.IsSelected && layersArr.includes( csdxf.DXFLayer ) && csdxf.deselect();
         })
-        this.emit( CSEvent.DXF_OBJ_DESELECT_ALL, null );
+        // TODO edit event
+        this.emit( CSEvent.DESELECT_ALL, null );
     }
 
     public deselectAll(): void {

@@ -5,6 +5,7 @@ import type { ICSCameraControls } from '../CSCameraControls';
 import type { ICSObjectCache } from '../CSCache';
 import { EventEmitter } from '../EventEmitter';
 import type { ICSTransform } from '../CSTransform/ICSTransform';
+import type { ICSObject } from '../CSObjects';
 
 export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRaycaster {
     
@@ -15,7 +16,7 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
 
     private readonly _CSScene: ICSScene;
     private readonly _CSCameraControls: ICSCameraControls;
-    private readonly _CSObjectCache: ICSObjectCache;
+    private readonly _CSObjectCache: ICSObjectCache<ICSObject>;
     private readonly _CSTransform: ICSTransform;
 
     private readonly _raycaster: THREE.Raycaster;
@@ -25,7 +26,7 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
         el: HTMLElement,
         CSScene: ICSScene,
         CSCameraControls: ICSCameraControls,
-        CSObjectCache: ICSObjectCache,
+        CSObjectCache: ICSObjectCache<ICSObject>,
         CSTransform: ICSTransform,
     ){
         super();
@@ -82,7 +83,9 @@ export class CSRaycater extends EventEmitter<ICSRaycastEvent> implements ICSRayc
         this._raycaster.setFromCamera( coords, camera );
         const intersects = this._raycaster.intersectObjects( this._CSScene.Group2D.children, true );
         if( intersects.length > 0 ){
-            const csObject = this._CSObjectCache.get( intersects[0].object.id );
+
+            const csObject = this._CSObjectCache.get( intersects[0].object.userData.ID )
+
             if( !csObject ) return;
             if( csObject.IsSelected ){
                 csObject.deselect();

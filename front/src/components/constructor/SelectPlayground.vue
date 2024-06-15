@@ -48,7 +48,7 @@ import { useCSStore } from '@/stores/cs-store';
 
 const { strapiget } = useApi();
 
-const visible = defineModel<boolean>('visible');
+const visible = defineModel<boolean>('selectPlaygroundVisible');
 
 const PlaygroundStore = usePlaygroundStore();
 const { playgroundsArr, selectedPlayground } = storeToRefs( PlaygroundStore );

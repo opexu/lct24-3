@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import type { IDxf } from "dxf-parser";
 import type { CAMERA_TYPE } from "../CSCameraControls";
-import type { CSDXFObject, ICSDXFObject } from '../CSObjects';
+import type { CSMafObject, ICSDXFObject, ICSMafObject, ICSObject } from '../CSObjects';
 import type { IEventEmitter } from '../EventEmitter';
 import type { ICSBorderObject, ICSBorderObjectConstructorOpts } from '../CSObjects/CSBorderObject';
 import type { IStrapi } from '@/types/strapi';
-import type { IPlayground, IPlaygroundFull } from '@/types/IReestr';
+import type { IDxfParsedMafObj, IMafFull, IPlayground, IPlaygroundFull } from '@/types/IReestr';
 
 export enum CSMode { SELECT, EDIT };
 
@@ -21,27 +21,29 @@ export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     clearDxf(): void;
     setMode( mode: CSMode ): void;
     setTransformMode( mode: 'translate' | 'rotate' ): void;
-    removeDxfObject( ...object: CSDXFObject[] ): void;
+    removeDxfObject( ...object: CSMafObject[] ): void;
     selectByLayers( layersArr: string[] ): void;
     deselectAll(): void;
     deselectByLayers( layersArr: string[] ): void;
     drawBorders( playground: IStrapi<IPlaygroundFull> ): void;
     removeBorders(): void;
-    CSDXFObjectsArr: ICSDXFObject[];
+    drawMaf( parsedMafGeo: IDxfParsedMafObj, mafInfo: IStrapi<IMafFull> ): void;
+    removeMaf( id: number ): void;
+    CSObjectsArr: ICSObject[];
 }
 
 export enum CSEvent {
-    DXF_OBJ_SELECT = 'CSEvent.DXF_OBJ_SELECT',
-    DXF_OBJ_DESELECT = 'CSEvent.DXF_OBJ_DESELECT',
-    DXF_OBJ_DESELECT_ALL = 'CSEvent.DXF_OBJ_DESELECT_ALL',
-    DXF_OBJ_TRANSFORM_UPDATE = 'CSEvent.DXF_OBJ_TRANSFORM_UPDATE',
-    DXF_OBJ_UPDATED = 'CSEvent.DXF_OBJ_UPDATED',
+    SELECT = 'CSEvent.SELECT',
+    DESELECT = 'CSEvent.DESELECT',
+    DESELECT_ALL = 'CSEvent.DESELECT_ALL',
+    TRANSFORM_UPDATE = 'CSEvent.TRANSFORM_UPDATE',
+    UPDATED = 'CSEvent.UPDATED',
 }
 
 export interface CSCoreEvent {
-    [CSEvent.DXF_OBJ_SELECT]: ICSDXFObject;
-    [CSEvent.DXF_OBJ_DESELECT]: ICSDXFObject;
-    [CSEvent.DXF_OBJ_DESELECT_ALL]: null;
-    [CSEvent.DXF_OBJ_TRANSFORM_UPDATE]: ICSDXFObject;
-    [CSEvent.DXF_OBJ_UPDATED]: ICSDXFObject;
+    [CSEvent.SELECT]: ICSObject;
+    [CSEvent.DESELECT]: ICSObject;
+    [CSEvent.DESELECT_ALL]: null;
+    [CSEvent.TRANSFORM_UPDATE]: ICSObject;
+    [CSEvent.UPDATED]: ICSObject;
 }

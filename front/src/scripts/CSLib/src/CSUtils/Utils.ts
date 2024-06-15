@@ -1,6 +1,11 @@
 import type { IMinMax, IMultiDimArray, IPoint2D } from '@/types/IReestr';
 import * as THREE from 'three';
 
+export function IsMesh( obj: THREE.Object3D ): obj is THREE.Mesh {
+    return obj instanceof THREE.Mesh;
+    // return 'isMesh' in obj && typeof obj.isMesh === 'boolean' && obj.isMesh;
+}
+
 export function IsMaterial( material: THREE.Material | THREE.Material[] ): material is THREE.Material {
     return !Array.isArray( material )
 }
@@ -13,17 +18,17 @@ export function DisposeMaterial( material: THREE.Material | THREE.Material[] ){
     }
 }
 
-export function PlaygroundCoordsParser( coords: IMultiDimArray<IPoint2D> ): THREE.Vector3[][] | null {
+export function PlaygroundCoordsParser( coords: IMultiDimArray<IPoint2D>, scale: number = 100 ): THREE.Vector3[][] | null {
 
     const arr: IPoint2D[][] = [];
     if( isPoint2DArray( coords )) {+
         // const d = coords.map( obj => new THREE.Vector3( obj.x, 0, obj.y ));
-        arr.push( coords );
+        arr.push( coords.map( c => ({ x: c.x * scale, y: c.y * scale })) );
     }else{
         coords.forEach( obj => {
             if( isPoint2DArray( obj ) ){
                 // const d = obj.map( o => new THREE.Vector3( o.x, 0, o.y ));
-                arr.push( obj );
+                arr.push( obj.map( c => ({ x: c.x * scale, y: c.y * scale })) );
             }else{
                 console.warn('too deep');
             }

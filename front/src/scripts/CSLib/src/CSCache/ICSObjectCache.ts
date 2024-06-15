@@ -1,13 +1,13 @@
-import type { CSDXFObject } from "../CSObjects";
+import type { ICSObject } from "../CSObjects";
 
-export interface ICSObjectCache {
-    Map: Map<number, CSDXFObject>;
-    CSDXFObjectArr: CSDXFObject[];
+export interface ICSObjectCache<T extends ICSObject> {
+    Map: Map<number, T>;
+    CSObjectArr: T[];
     HasSelected: boolean;
-    Selected: CSDXFObject[];
-    add( csDxfObject: CSDXFObject ): void;
-    remove( csDxfObject: CSDXFObject ): void;
-    get( id: number ): CSDXFObject | undefined;
+    Selected: T[];
+    add( csDxfObject: T ): void;
+    remove( csDxfObject: T ): void;
+    get( id: number ): T | undefined;
     has( id: number ): boolean;
     clear(): void;
 }

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CSDXFObjectType, CSDXFObject, CSLineType } from '../CSObjects';
+import { CSDXFObjectType, CSMafObject, CSLineType } from '../CSObjects';
 import type { IDxfParsedObj } from '../CSUtils/CSDXFParser';
 import type { ICSBuilder } from './ICSBuilder';
 
@@ -15,20 +15,20 @@ export class _CSBuilder implements ICSBuilder {
             {
                 const opts = { radius: 40 }
                 const { object3D, raycastObject3D } = this._createPolyline( dxfObj, opts );
-                // return new CSDXFObject( dxfObj.type, dxfObj.layer, object3D, raycastObject3D );
+                // return new CSMafObject( dxfObj.type, dxfObj.layer, object3D, raycastObject3D );
             }
             case CSDXFObjectType.ARC:
             case CSDXFObjectType.CIRCLE: 
             {
                 const opts = { radius: 40 }
                 const { object3D, raycastObject3D } = this._createArc( dxfObj, opts );
-                // return new CSDXFObject( dxfObj.type, dxfObj.layer, object3D, raycastObject3D );
+                // return new CSMafObject( dxfObj.type, dxfObj.layer, object3D, raycastObject3D );
             }
             case CSDXFObjectType.POINT: 
             {
                 const opts = { r1: 20, r2: 40 }
                 const { object3D, raycastObject3D } = this._createPoint( dxfObj, opts );
-                // return new CSDXFObject( dxfObj.type, dxfObj.layer, object3D, raycastObject3D );
+                // return new CSMafObject( dxfObj.type, dxfObj.layer, object3D, raycastObject3D );
             }
         }
     }

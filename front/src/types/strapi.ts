@@ -27,3 +27,10 @@ export interface IUpload {
     url: string;
     size: number;
 }
+
+export interface IPagination {
+    page: number,
+    pageCount: number,
+    pageSize: number,
+    total: number,
+}

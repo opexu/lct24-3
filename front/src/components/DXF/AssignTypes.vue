@@ -1,7 +1,7 @@
 <template>
 <div class="card flex justify-content-center">
     <Button icon="pi pi-check"
-    :disabled="SelectedDXFCSArr.length === 0"
+    :disabled="SelectedCSArr.length === 0"
     @click="visible = true"
     v-tooltip.bottom = "'Назначить типы'"
     />
@@ -19,7 +19,7 @@
         <div class="relative w-full max-h-full flex flex-col overflow-hiden">
             <div class="w-full max-h-full flex overflow-y-auto">
                 <div class="w-full h-fit flex flex-col space-y-2">
-                    <AssignTypesItem v-for="( csdxf ) in SelectedDXFCSArr" :key="csdxf.ID"
+                    <AssignTypesItem v-for="( csdxf ) in SelectedCSArr" :key="csdxf.ID"
                     :csdxf="csdxf"
                     :title="csdxf.ID + ' - ' + csdxf.DXFLayer + ' - ' + csdxf.Type"
                     />
@@ -39,7 +39,7 @@ import { storeToRefs } from 'pinia';
 import AssignTypesItem from './AssignTypesItem.vue';
 
 const CSStore = useCSStore();
-const { SelectedDXFCSArr } = storeToRefs( CSStore );
+const { SelectedCSArr } = storeToRefs( CSStore );
 const visible = ref(false);
 
 

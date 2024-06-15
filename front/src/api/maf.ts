@@ -3,12 +3,16 @@ import type { IAPI, IAPIPOST } from "@/types/api"
 
 export enum MAF_KEY {
     POST_MAF_ZIP = 'POST_MAF_ZIP',
-    POST_MAF_RELATIONS_ZIP = 'POST_MAF_RELATIONS_ZIP'
+    POST_MAF_RELATIONS_ZIP = 'POST_MAF_RELATIONS_ZIP',
+    FILTER_MAFS = 'FILTER_MAFS',
+    POINTS = 'POINTS',
 }
 
 export interface MAF_API {
     [MAF_KEY.POST_MAF_ZIP]: IAPIPOST<[File]>,
-    [MAF_KEY.POST_MAF_RELATIONS_ZIP]: IAPIPOST<[File]>
+    [MAF_KEY.POST_MAF_RELATIONS_ZIP]: IAPIPOST<[File]>,
+    [MAF_KEY.FILTER_MAFS]: IAPI<[number[], number[], number[], number[], number[], number, number ]>,
+    [MAF_KEY.POINTS]: IAPI<[number[]]>,
 }
 
 export const MAF_API: MAF_API = {
@@ -32,5 +36,45 @@ export const MAF_API: MAF_API = {
             return formData;
         }
     },
+
+    FILTER_MAFS: {
+        url: "/backend/api/mafs",
+        handler: function ( mafTypesIdArr: number[], catalogsIdArr: number[], providersIdArr: number[], territoryTypesIdArr: number[], ageCategoriesIdArr: number[], page: number, pageSize: number ){
+            return qs.stringify({
+                filters: {
+                    $and: (() => {
+                        const andArr = [];
+                        if( mafTypesIdArr.length > 0 ) andArr.push({ maf_type: { id: { $in: mafTypesIdArr }}});
+                        if( catalogsIdArr.length > 0 ) andArr.push({ catalog: { id: { $in: catalogsIdArr }}});
+                        if( providersIdArr.length > 0 ) andArr.push({ provider: { id: { $in: providersIdArr }}});
+                        if( territoryTypesIdArr.length > 0 ) andArr.push({ territory_types: { id: { $in: territoryTypesIdArr }}});
+                        if( ageCategoriesIdArr.length > 0 ) andArr.push({ age_categories: { id: { $in: ageCategoriesIdArr }}});
+                        return andArr;
+                    })()
+                },
+                populate: [
+                    'maf_type',
+                    'catalog',
+                    'provider',
+                    'territory_types',
+                    'age_categories',
+                ],
+                pagination: {
+                    page: page,
+                    pageSize: pageSize,
+                    withCount: true,
+                }
+            }, { encodeValuesOnly: true });
+        }
+    },
+
+    POINTS: {
+        url: "/backend/api/maf/points",
+        handler: function( mafsIdArr: number[] ){
+            return qs.stringify({
+                mafsIdArr: mafsIdArr
+            }, { encodeValuesOnly: true });
+        }
+    }
 
 }

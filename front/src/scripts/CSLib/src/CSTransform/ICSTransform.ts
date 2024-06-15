@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { ICSDXFObject } from '../CSObjects';
+import type { ICSMafObject, ICSObject } from '../CSObjects';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import type { EventEmitter } from '../EventEmitter';
 
@@ -8,8 +8,8 @@ export interface ICSTransform extends EventEmitter<CSTransformEvent> {
     IsEnabled: boolean;
     enable(): void;
     disable(): void;
-    attach( ...csdxfobj: ICSDXFObject[] ): void;
-    detach( ...csdxfobj: ICSDXFObject[] ): void;
+    attach( ...csdxfobj: ICSObject[] ): void;
+    detach( ...csdxfobj: ICSObject[] ): void;
     setMode( mode: 'translate' | 'rotate' ): void;
 }
 
@@ -18,5 +18,5 @@ export enum CSTransformEventKey {
 }
 
 export interface CSTransformEvent {
-    [CSTransformEventKey.CHANGE]: ICSDXFObject;
+    [CSTransformEventKey.CHANGE]: ICSMafObject;
 }

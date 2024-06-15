@@ -28,7 +28,6 @@
 <script setup lang="ts">
 import { useLogout } from '@/composables/useLogout';
 import { CAMERA_TYPE } from '@/scripts/CSLib/src/CSCameraControls';
-import { useCSDXFEvents } from '@/stores/_cs-events';
 import { useCSStore } from '@/stores/cs-store';
 import Button from 'primevue/button';
 import TransformMode from './TransformMode.vue';

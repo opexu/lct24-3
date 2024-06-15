@@ -1,6 +1,7 @@
 import utils, { parseMultipartData } from '@strapi/utils';
 const { ApplicationError } = utils.errors;
 import * as fs from 'fs';
+import * as path from 'path';
 import unzipper from 'unzipper';
 import { XMLParser, XMLBuilder, XMLValidator} from 'fast-xml-parser';
 import { Transform, TransformCallback, TransformOptions } from 'stream';
@@ -192,7 +193,7 @@ function toMafDbData( data: IMafRaw ): IMafDb | null {
         name: data.Catalog?.name ?? '',
         units: data.Catalog?.units ?? '',
         type_equipment: data.Catalog?.typeEquipment ?? '',
-        safety_zones: data.Catalog?.safetyZones ?? '',
+        safety_zones: data.Catalog?.safetyZones ? data.Catalog?.safetyZones.replace('.dwg', '.dxf') : '',
         tech_documentation: data.Catalog?.techDocumentation ?? '',
         // catalog_name: '',
         // provider: '',

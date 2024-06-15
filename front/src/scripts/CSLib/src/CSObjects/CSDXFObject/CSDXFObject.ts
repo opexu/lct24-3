@@ -1,13 +1,15 @@
 import * as THREE from 'three';
-import { EngineTypesArr, CSDXFObjectType, CSEngineType, type DXFObjectEvent, type ICSDXFObject, type ICSDXFObjectConstructorOpts } from '.';
-import { CSDXFObjectEvent } from '.';
+import { Polygon } from 'detect-collisions';
 import { EventEmitter } from '../../EventEmitter/EventEmitter';
 import * as CSUtils from '../../CSUtils';
 import * as CSBuilder from '../../CSUtils/CSBuilder/CSBuilder';
+import { CSDXFObjectEvent, EngineTypesArr, CSDXFObjectType, CSEngineType, type CSDXFEvent, type ICSDXFObject, type ICSDXFObjectConstructorOpts } from './ICSDXFObject';
+import { CSPolygon } from '../../CSCollision/CSPolygon';
 
-export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFObject {
+export class CSDXFObject extends EventEmitter<CSDXFEvent> implements ICSDXFObject {
     
     private _isSelected: boolean;
+    private _isCollide: boolean;
     private readonly _IS_CLOSED = true;
 
     private readonly _points: THREE.Vector3[];
@@ -18,8 +20,13 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
     private readonly _dxfLayer: string;
     private readonly _color: THREE.Color;
     private readonly _selectedColor: THREE.Color;
+    private readonly _nonCollideColor: THREE.Color;
+    private readonly _collideColor: THREE.Color;
+
     private readonly _object3D: THREE.Line | THREE.Mesh;
     private readonly _raycastObject3D: THREE.Mesh;
+    private readonly _borderMat: THREE.LineBasicMaterial | THREE.MeshBasicMaterial;
+    private readonly _polygon: CSPolygon;
 
     constructor(
         // type: CSDXFObjectType,
@@ -34,18 +41,31 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
         this._points = points;
         this._type = opts.type;
         this._dxfLayer = opts.layer;
+        
         this._color = new THREE.Color( opts.color );
         this._selectedColor = new THREE.Color( 0xffff00 );
 
-        const { origin, mesh, raycastObj } = this._create( this._points, opts.color, this._type );
+        this._nonCollideColor = new THREE.Color( 0x00ff00 );
+        this._collideColor = new THREE.Color( 0xff0000 );
+
+        const { origin, mesh, raycastObj, mat: _mat } = this._create( this._points, opts.color, this._type );
+        this._borderMat = _mat;
+        
         this._object3D = mesh;
         this._object3D.layers.set( 1 );
         this._raycastObject3D = raycastObj;
         this._raycastObject3D.layers.set( 2 );
-
         this._raycastObject3D.visible = false;
+        this._raycastObject3D.userData = this;
+
+        this._object3D.add( this._raycastObject3D );
+        this._object3D.position.set( origin.x, origin.y, origin.z );
+        
+        // this._polygon = new Polygon({ x: origin.x, y: origin.z }, this._points.map( p => ({ x: p.x, y: p.z })), { isStatic: false });
+        this._polygon = new CSPolygon(this._raycastObject3D.id, this, { x: origin.x, y: origin.z }, this._points.map( p => ({ x: p.x, y: p.z })), { isStatic: false });
 
         this._isSelected = false;
+        this._isCollide = false;
 
         this._availableEngineTypes = this._calcAvailableEngineTypes( this._type, this._IS_CLOSED );
         this._engineType = this._defaultEngineType( this._type, this._IS_CLOSED );
@@ -57,16 +77,17 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
     get EngineType(){ return this._engineType; }
     get AvailableEngineTypes(){ return this._availableEngineTypes; }
     get Object2D(){ return this._object3D; }
-    get RaycastObject2D(){ return this._raycastObject3D; }
     get IsSelected(){ return this._isSelected; }
     get IsClosed(){ return true; }
     get CanRotate(){ return this._type === CSDXFObjectType.POINT ? false : true }
+    get IsMaf(){ return false; }
     get GeoProps(){
         const size = new THREE.Vector3();
         this._object3D.geometry.boundingBox?.getSize( size );
         return {
             id: this.ID,
             origin: this._object3D.position,
+            radAngle: this._object3D.rotation.y,
             angle: THREE.MathUtils.radToDeg( this._object3D.rotation.y ),
             width: size.x,
             length: size.z,
@@ -75,6 +96,15 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
             engineType: this._engineType,
         }
     }
+    get Polygon(){ return this._polygon; }
+    get IsCollide(){ return this._isCollide; }
+    set IsCollide( value: boolean ){
+        if( this._isCollide === value ) return;
+        this._isCollide = value;
+        this._borderMat.color = this._isCollide ? this._collideColor : this._nonCollideColor;
+        this._borderMat.needsUpdate = true;
+    }
+
     public select(){
         this._isSelected = true;
         ( this._object3D.material as THREE.MeshBasicMaterial ).color = this._selectedColor;
@@ -108,12 +138,12 @@ export class CSDXFObject extends EventEmitter<DXFObjectEvent> implements ICSDXFO
             case CSDXFObjectType.CIRCLE: 
             {
                 const opts = { radius: 40 }
-                return CSBuilder.Polyline( points, color, opts );
+                return CSBuilder.PolylineRaycast( points, color, opts );
             }
             case CSDXFObjectType.POINT: 
             {
                 const opts = { radius: 40 }
-                return CSBuilder.Point( points[0], color, opts );
+                return CSBuilder.PointRaycast( points[0], color, opts );
             }
         }
     }

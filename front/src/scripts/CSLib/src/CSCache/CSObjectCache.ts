@@ -1,16 +1,12 @@
-import type { CSDXFObject } from "../CSObjects";
+import type { ICSObject } from "../CSObjects";
 import type { ICSObjectCache } from "./ICSObjectCache";
 
-export class CSObjectCache implements ICSObjectCache {
+export class CSObjectCache<T extends ICSObject> implements ICSObjectCache<T> {
     
-    private readonly _map: Map<number, CSDXFObject> = new Map();
-    
-    constructor(){
+    private readonly _map: Map<number, T> = new Map();
         
-    }
-    
     get Map(){ return this._map; }
-    get CSDXFObjectArr(){ return Array.from( this._map.values() ) }
+    get CSObjectArr(){ return Array.from( this._map.values() ) }
     get HasSelected(){
         let hasSelected = false;
         this._map.forEach( csDxfObj => {
@@ -19,27 +15,27 @@ export class CSObjectCache implements ICSObjectCache {
         return hasSelected;
     }
     get Selected(){
-        const selected: CSDXFObject[] = [];
-        this._map.forEach( csDxfObj => {
-            if( csDxfObj.IsSelected ) selected.push( csDxfObj );
+        const selected: T[] = [];
+        this._map.forEach( csobj => {
+            if( csobj.IsSelected ) selected.push( csobj );
         });
         return selected;
     }
 
-    public add( csDxfObject: CSDXFObject ): void {
-        if( this._map.has( csDxfObject.ID ) ){
+    public add( csobj: T ): void {
+        if( this._map.has( csobj.ID ) ){
             // TODO dispose
         }
 
-        this._map.set( csDxfObject.ID, csDxfObject );
+        this._map.set( csobj.ID, csobj );
     }
     
-    public remove( csDxfObject: CSDXFObject ): void {
+    public remove( csobj: T ): void {
         // dispose on level up
-        this._map.delete( csDxfObject.ID );
+        this._map.delete( csobj.ID );
     }
     
-    public get( id: number ): CSDXFObject | undefined {
+    public get( id: number ): T | undefined {
         return this._map.get( id );
     }
 

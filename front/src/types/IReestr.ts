@@ -1,3 +1,4 @@
+import type { IPoint } from "dxf-parser";
 import type { IManyRelation, IOneRelation, IStrapi } from "./strapi";
 
 export interface ITitle { Title: string; }
@@ -148,5 +149,14 @@ export interface IAgeCategory extends ITitle {
 export interface IAgeCategoryDb extends ITitleDb {
     min: number;
     max: number;
+}
+//#endregion
+
+//#region IDxfParsedMafObj
+export interface IDxfParsedMafObj {
+    id: number;
+    borderPoints: IPoint[];
+    geoPoints: IPoint[][];
+    minMax: { min: IPoint, max: IPoint }
 }
 //#endregion

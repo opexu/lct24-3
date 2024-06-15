@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { IEventable } from '../../EventEmitter';
+import type { ICSSelectable, ICollidable, IDisposable, IGeoProps, IsMaf } from '../common';
 
 export interface ICSDXFObjectConstructorOpts {
     color: number,
@@ -7,32 +8,27 @@ export interface ICSDXFObjectConstructorOpts {
     layer: string,
 }
 
-export interface ICSGeoProps {
-    id: number;
-    origin: THREE.Vector3;
-    angle: number;
-    width: number;
-    length: number;
-    layer: string;
-    type: CSDXFObjectType;
-    engineType: CSEngineType;
-}
+// export interface ICSGeoProps {
+//     id: number;
+//     origin: THREE.Vector3;
+//     angle: number;
+//     width: number;
+//     length: number;
+//     layer: string;
+//     type: CSDXFObjectType;
+//     engineType: CSEngineType;
+// }
 
-export interface ICSDXFObject extends IEventable<DXFObjectEvent> {
+export interface ICSDXFObject extends IEventable<CSDXFEvent>, ICSSelectable, IDisposable, IsMaf, IGeoProps, ICollidable {
     ID: number;
     DXFLayer: string;
     Type: CSDXFObjectType;
     EngineType: CSEngineType;
     AvailableEngineTypes: CSEngineType[];
     Object2D: THREE.Object3D;
-    RaycastObject2D: THREE.Object3D;
-    IsSelected: boolean;
     IsClosed: boolean;
     CanRotate: boolean;
-    GeoProps: ICSGeoProps;
-    select(): void;
-    deselect(): void;
-    dispose(): void;
+    // GeoProps: ICSGeoProps;
     assignEngineType( engineType: CSEngineType ): void;
 }
 
@@ -62,7 +58,7 @@ export enum CSDXFObjectEvent {
     UPDATED = 'CSDXFObjectEvent.UPDATED',
 }
 
-export interface DXFObjectEvent {
+export interface CSDXFEvent {
     [CSDXFObjectEvent.SELECT]: ICSDXFObject;
     [CSDXFObjectEvent.DESELECT]: ICSDXFObject;
     [CSDXFObjectEvent.UPDATED]: ICSDXFObject;

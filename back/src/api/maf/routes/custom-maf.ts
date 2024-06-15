@@ -10,5 +10,10 @@ export default {
             path: '/maf/upload-relations',
             handler: 'upload-maf-relations.upload',
         },
+        {
+            method: 'GET',
+            path: '/maf/points',
+            handler: 'points.points',
+        },
     ]
 }

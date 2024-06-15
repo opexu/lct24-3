@@ -1,9 +1,11 @@
 import * as THREE from 'three';
+import { Polygon } from 'detect-collisions';
 import type { IPlaygroundFull } from "@/types/IReestr";
 import type { IStrapi } from "@/types/strapi";
 import type { Path, Object3D, Object3DEventMap } from "three";
 import type { ICSBorderObject, ICSBorderObjectConstructorOpts } from "./ICSBorderObject";
 import * as CSBuilder from '../../CSUtils/CSBuilder/CSBuilder';
+import { CSPolygon } from '../../CSCollision/CSPolygon';
 
 export class CSBorderObject implements ICSBorderObject {
     
@@ -12,6 +14,7 @@ export class CSBorderObject implements ICSBorderObject {
     private readonly _object3D: THREE.Line;
     private readonly _raycastObject3D: THREE.Mesh;
     private readonly _playground: IStrapi<IPlaygroundFull>;
+    private readonly _polygon: CSPolygon;
 
     constructor(
         points: THREE.Vector3[],
@@ -28,18 +31,26 @@ export class CSBorderObject implements ICSBorderObject {
         this._raycastObject3D = raycastObj;
         this._raycastObject3D.layers.set( 2 );
         this._raycastObject3D.visible = false;
+        
+        this._object3D.add( this._raycastObject3D );
+        this._object3D.position.set( origin.x, origin.y, origin.z );
+
+        // console.log('border origin', origin.x, origin.y, origin.z );
+        // console.log('border points', this._points );
+        // this._polygon = new Polygon({ x: 0, y: 0 }, this._points.map( p => ({ x: p.x, y: p.z })), { isStatic: true });
+        this._polygon = new CSPolygon( this._raycastObject3D.id, undefined, { x: 0, y: 0 }, this._points.map( p => ({ x: p.x, y: p.z })), { isStatic: true });
 
         this._isSelected = false;
     }
 
     get ID(){ return this._raycastObject3D.id; }
-    get IDName(){ return this._object3D.name; }
     get Playground(){ return this._playground; }
     get Object2D(){ return this._object3D; }
-    get RaycastObject2D(){ return this._raycastObject3D; }
     get IsSelected(){ return this._isSelected; }
-
+    get Polygon(){ return this._polygon; }
+    get IsCollide(){ return false; }
+    
     private _create( points: THREE.Vector3[], color: number ){
-        return CSBuilder.Polyline( points, color, { radius: 40 })
+        return CSBuilder.PolylineRaycast( points, color, { radius: 40 })
     }
 }

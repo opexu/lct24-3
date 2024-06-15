@@ -1,6 +1,27 @@
 import * as THREE from 'three';
 
-export function Polyline( points: THREE.Vector3[], color: number, opts: { radius: number }){
+export function PolylinesGroup( points: THREE.Vector3[][], color: number ){
+    const parentObj = new THREE.Object3D();
+    const mat = new THREE.LineBasicMaterial({ linewidth: 1, color });
+    for( let i = 0; i < points.length; i++ ){
+        parentObj.add( _polyline( points[i], mat ) );
+    }
+    return { parentObj, mat };
+}
+
+function _polyline( points: THREE.Vector3[], mat: THREE.LineBasicMaterial ): THREE.Line {
+    const geo = new THREE.BufferGeometry().setFromPoints( points );
+    geo.computeBoundingBox();
+    const origin = new THREE.Vector3();
+    geo.boundingBox!.getCenter( origin );
+    geo.center();
+    const line = new THREE.Line( geo, mat );
+
+    line.position.set( origin.x, origin.y, origin.z );
+    return line;
+}
+
+export function PolylineRaycast( points: THREE.Vector3[], color: number, opts: { radius: number }){
     const geo1 = new THREE.BufferGeometry().setFromPoints( points );
     geo1.computeBoundingBox();
     const origin = new THREE.Vector3();
@@ -17,13 +38,13 @@ export function Polyline( points: THREE.Vector3[], color: number, opts: { radius
     // geo2.translate( origin.x, origin.y, origin.z );
     const mat2 = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const raycastObj = new THREE.Mesh( geo2, mat2 );
-    mesh.add( raycastObj );
+    // mesh.add( raycastObj );
 
-    mesh.position.set( origin.x, origin.y, origin.z );
-    return { origin, mesh, raycastObj };
+    // mesh.position.set( origin.x, origin.y, origin.z );
+    return { origin, mesh, raycastObj, mat: mat1 };
 }
 
-export function Point( origin: THREE.Vector3, color: number, opts: { radius: number } ){
+export function PointRaycast( origin: THREE.Vector3, color: number, opts: { radius: number } ){
     const geo1 = new THREE.SphereGeometry( opts.radius / 2, 8, 8 );
     geo1.computeBoundingBox();
     const mat1 = new THREE.MeshBasicMaterial({ color });
@@ -33,10 +54,10 @@ export function Point( origin: THREE.Vector3, color: number, opts: { radius: num
     const mat2 = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const raycastObj = new THREE.Mesh( geo2, mat2 );
     
-    mesh.add( raycastObj );
-    mesh.position.set( origin.x, origin.y, origin.z );
+    // mesh.add( raycastObj );
+    // mesh.position.set( origin.x, origin.y, origin.z );
     
-    return { origin, mesh, raycastObj };
+    return { origin, mesh, raycastObj, mat: mat1 };
 }
 
 export function BufferAttributeToVector3( geo: THREE.BufferGeometry ): THREE.Vector3[] {

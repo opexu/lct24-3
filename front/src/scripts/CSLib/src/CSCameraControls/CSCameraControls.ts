@@ -22,7 +22,7 @@ export class CSCameraControls extends EventEmitter<CSCameraEvent> implements ICS
         const OCP = {
             frustum: 50,
         }
-        const startPos = 50;
+        const startPos = 500;
         this._aspect = container.offsetWidth / container.offsetHeight;
         this._PCamera = new THREE.PerspectiveCamera( PCP.fov, this._aspect, PCP.near, PCP.far );
         this._PCamera.position.set( startPos, startPos, startPos );

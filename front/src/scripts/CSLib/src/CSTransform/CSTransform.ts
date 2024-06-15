@@ -3,14 +3,14 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 import { CSTransformEventKey, type CSTransformEvent, type ICSTransform } from "./ICSTransform";
 import { CSCameraEventKey, type ICSCameraControls } from '../CSCameraControls';
-import type { CSDXFObject, ICSDXFObject } from '../CSObjects';
+import type { CSMafObject, ICSMafObject } from '../CSObjects';
 import { EventEmitter } from '../EventEmitter';
 
 export class CSTransform extends EventEmitter<CSTransformEvent> implements ICSTransform {
     
     private readonly _CSCameraControls: ICSCameraControls;
     private readonly _transformControls: TransformControls;
-    private _csDxfObj: ICSDXFObject | undefined;
+    private _csDxfObj: ICSMafObject | undefined;
 
     constructor(
         el: HTMLElement,
@@ -47,7 +47,7 @@ export class CSTransform extends EventEmitter<CSTransformEvent> implements ICSTr
         this._csDxfObj = undefined;
     }
 
-    public attach( csObj: CSDXFObject ){
+    public attach( csObj: CSMafObject ){
         if( !this._transformControls.enabled ) return;
         if( this._transformControls.mode === 'rotate' && !csObj.CanRotate ){
             this.setMode( 'translate' );

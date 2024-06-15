@@ -9,7 +9,7 @@
     @click="activeCoreMode = mode"
     />
     <div class="w-full h-fit flex flex-col space-y-2"
-    v-if="activeCoreMode.mode === CSMode.EDIT && CSStore.SelectedDXFCSArr.length === 1"
+    v-if="activeCoreMode.mode === CSMode.EDIT && CSStore.SelectedCSArr.length === 1"
     >
         <Button class="w-full" 
         v-for="( mode ) in filterModes()" :key="mode.mode"
@@ -32,7 +32,7 @@ const CSStore = useCSStore();
 
 interface CSCoreMode { mode: number, icon: string, tooltip: string };
 const coreModes = ref<CSCoreMode[]>([ 
-    { mode: CSMode.SELECT, icon: "pi pi-arrow-up-left", tooltip: "Режим выделения" }, 
+    { mode: CSMode.SELECT, icon: "pi pi-arrow-up-left", tooltip: "Режим выделения. Кликать мышкой по зоне безопасности" }, 
     { mode: CSMode.EDIT, icon: "pi pi-pencil", tooltip: "Режим редактирования" }, 
 ]);
 const activeCoreMode = ref<CSCoreMode>( coreModes.value[0] );
@@ -43,11 +43,11 @@ watch( activeCoreMode, ( value, oldValue ) => {
 
 interface TransformMode { mode: 'translate' | 'rotate', icon: string, tooltip: string };
 const transformModes = ref<TransformMode[]>([ 
-    { mode: "translate", icon: "pi pi-arrows-alt", tooltip: "Двигать" }, 
-    { mode: "rotate", icon: "pi pi-sync", tooltip: "Вращать" }, 
+    { mode: "translate", icon: "pi pi-arrows-alt", tooltip: "Двигать. Допускается двигать если выделен только один объект" }, 
+    { mode: "rotate", icon: "pi pi-sync", tooltip: "Вращать. Допускается вращать если выделен только один объект" }, 
 ]);
 function filterModes(){
-    if( CSStore.SelectedDXFCSArr[0].CanRotate ){
+    if( CSStore.SelectedCSArr[0].CanRotate ){
         return transformModes.value;
     }else{
         activeTransformMode.value = transformModes.value[0];

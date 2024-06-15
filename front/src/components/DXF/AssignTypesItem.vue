@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import type { CSEngineType, ICSDXFObject } from '@/scripts/CSLib';
+import type { CSEngineType, ICSMafObject } from '@/scripts/CSLib';
 import Dropdown, { type DropdownChangeEvent } from 'primevue/dropdown';
 import { onMounted, onUnmounted, ref } from 'vue';
 const props = defineProps<{
-    csdxf: ICSDXFObject;
+    csdxf: ICSMafObject;
     title: string;
     // checked: boolean;
 }>();

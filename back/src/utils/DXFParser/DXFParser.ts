@@ -1,89 +1,153 @@
-import type { IArcEntity, ICircleEntity, IDxf, IEllipseEntity, IEntity, ILineEntity, ILwpolylineEntity, IPoint, IPointEntity, IPolylineEntity, ISplineEntity } from "dxf-parser";
+import type { IArcEntity, ICircleEntity, IDxf, IEllipseEntity, IEntity, ILineEntity, ILwpolylineEntity, IPoint, IPointEntity, IPolylineEntity, ISplineEntity, IVertexEntity } from "dxf-parser";
 import * as THREE from 'three';
 import bSpline from './bspline';
-import { CSLineType, type CSDXFObjectType } from "../../CSObjects";
+import { IVertex } from "dxf-parser/dist/entities/lwpolyline";
 
-export interface IDxfParsedObj {
-    color: number;
-    type: CSDXFObjectType;
-    layer: string;
-    lineType: CSLineType;
-    points: THREE.Vector3[];
-    origin: THREE.Vector3;
+export interface IDxfParsedMafObj {
+    id: number;
+    borderPoints: IPoint[];
+    geoPoints: IPoint[][];
+    minMax: { min: IPoint, max: IPoint }
 }
 
-export class CSDXFParser {
+export class DXFParser {
 
-    public parse( dxf: IDxf ): IDxfParsedObj[] {
+    public parse( dxf: IDxf ): Omit<IDxfParsedMafObj,'id'> {
 
-        const dxfBufferGeometryArr: IDxfParsedObj[] = [];
+        let tempBorderPoints: IPoint[] = [];
+        const tempGeoPoints: IPoint[][] = [];
+        let minMax: { min: IPoint, max: IPoint };
+        let translateMatrix: THREE.Matrix4;
+
         for ( let i = 0; i < dxf.entities.length; i++ ) {
-            let points: THREE.Vector3[] = [];
-            let origin = new THREE.Vector3();
             const dxfEntity = dxf.entities[ i ];
-            switch ( dxfEntity.type ) {
-                case 'POLYLINE': {
-                    points = this._parsePolyline( dxfEntity as IPolylineEntity );
-                    origin = points[ 0 ];
+            const points = this._parseObj( dxfEntity );
+            switch( dxfEntity.layer ){
+                case '0': {
+                    tempGeoPoints.push( points )
                     break;
                 }
-                case 'LWPOLYLINE': {
-                    points = this._parseLwPolyline( dxfEntity as ILwpolylineEntity );
-                    origin = points[ 0 ];
+                case '1': {
+                    if( minMax && tempBorderPoints.length !== 0 ) break;
+                    tempBorderPoints = points;
+                    minMax = this._calcMinMax( tempBorderPoints );
+                    translateMatrix = this._calcTranslateMatrix( minMax );
                     break;
-                }
-                case 'LINE': {
-                    points = this._parseLine( dxfEntity as ILineEntity );
-                    origin = points[ 0 ];
-                    break;
-                }
-                case 'ARC':
-                case 'CIRCLE': {
-                    points = this._parseCircle( dxfEntity as ICircleEntity | IArcEntity );
-                    origin.set(
-                        ( dxfEntity as ICircleEntity ).center.x,
-                        ( dxfEntity as ICircleEntity ).center.y,
-                        ( dxfEntity as ICircleEntity ).center.z
-                    )
-                    break;
-                }
-                case 'ELLIPSE': {
-                    points = this._parseEllipse( dxfEntity as IEllipseEntity );
-                    origin = points[ 0 ];
-                    break;
-                }
-                case 'SPLINE': {
-                    points = this._parseSpline( dxfEntity as ISplineEntity );
-                    origin = points[ 0 ];
-                    break;
-                }
-                case 'POINT': {
-                    points = this._parsePoint( dxfEntity as IPointEntity );
-                    origin = points[ 0 ];
-                    break;
-                }
-                default: {
-                    console.log( `parser to dxf entity type ${dxfEntity.type} not implemented` );
-                    continue;
                 }
             }
-            if( !points || points.length === 0 ) continue;
-            dxfBufferGeometryArr.push({
-                color: this._getColor( dxfEntity, dxf ),
-                type: dxfEntity.type as CSDXFObjectType,
-                layer: dxfEntity.layer,
-                lineType: this._getLineType( dxfEntity, dxf ),
-                points: points.map( p => new THREE.Vector3( p.x, p.z, -p.y ) ),
-                origin: origin,
-            });
         }
 
-        return dxfBufferGeometryArr;
+        const borderPoints = this._centerPoints( tempBorderPoints, translateMatrix ) as IPoint[];
+        const geoPoints = this._centerPoints( tempGeoPoints, translateMatrix ) as IPoint[][];
+
+        return {
+            geoPoints,
+            borderPoints,
+            minMax,
+        }
     }
 
-    private _parsePolyline( entity: IPolylineEntity ) {
-        const points = [];
-        let vertex, startPoint, endPoint, bulge, i;
+    private _calcMinMax( pointsArr: IPoint[] ){
+        let min: IPoint = { x: Number.POSITIVE_INFINITY, y: Number.POSITIVE_INFINITY, z: 0 }
+        let max: IPoint = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY, z: 0 }
+        pointsArr.forEach( p => {
+            if( p.x < min.x ) min.x = p.x;
+            if( p.y < min.y ) min.y = p.y;
+            if( p.x > max.x ) max.x = p.x;
+            if( p.y > max.y ) max.y = p.y;
+        });
+        return { min, max };
+    }
+
+    private _calcTranslateMatrix( minmax: { min: IPoint, max: IPoint } ): THREE.Matrix4 {
+        const box3 = new THREE.Box3( new THREE.Vector3( minmax.min.x, 0, minmax.min.y ), new THREE.Vector3( minmax.max.x, 0, minmax.max.y ) );
+        const boxOrigin = new THREE.Vector3();
+        box3.getCenter( boxOrigin );
+        boxOrigin.negate();
+        const translationMatrix = new THREE.Matrix4();
+        translationMatrix.set(
+            1, 0, 0, boxOrigin.x,
+            0, 1, 0, 0,
+            0, 0, 1, boxOrigin.z,
+            0, 0, 0, 1,
+        );
+        return translationMatrix;
+    }
+
+    private _centerPoints( arr: IPoint[][] | IPoint[], matrix: THREE.Matrix4 ): IPoint[][] | IPoint[] {
+        if( this._IsMultiArr( arr ) ){
+            const vectorArr: IPoint[][] = [];
+            arr.forEach( pointsArr => {
+                const vArr: IPoint[] = [];
+                pointsArr.forEach( p => {
+                    const v = new THREE.Vector3( p.x, 0, p.y );
+                    v.applyMatrix4( matrix );
+                    vArr.push( v );
+                });
+                vectorArr.push( vArr );
+            });
+            return vectorArr;
+        }else{
+            const vectorArr: IPoint[] = [];
+            arr.forEach( p => {
+                const v = new THREE.Vector3( p.x, 0, p.y );
+                v.applyMatrix4( matrix );
+                vectorArr.push( v );
+            });
+            return vectorArr;
+        }
+        
+    }
+
+    private _IsMultiArr( arr: IPoint[][] | IPoint[] ): arr is IPoint[][]{
+        if( Array.isArray( arr[0] ) ) return true;
+        else return false;
+    }
+    private _parseObj( dxfEntity: IEntity ): IPoint[] {
+        let points: IPoint[] = [];
+        switch ( dxfEntity.type ) {
+            case 'POLYLINE': {
+                points = this._parsePolyline( dxfEntity as IPolylineEntity );
+                break;
+            }
+            case 'LWPOLYLINE': {
+                points = this._parseLwPolyline( dxfEntity as ILwpolylineEntity );
+                break;
+            }
+            case 'LINE': {
+                points = this._parseLine( dxfEntity as ILineEntity );
+                break;
+            }
+            case 'ARC':
+            case 'CIRCLE': {
+                points = this._parseCircle( dxfEntity as ICircleEntity | IArcEntity );
+                break;
+            }
+            case 'ELLIPSE': {
+                points = this._parseEllipse( dxfEntity as IEllipseEntity );
+                break;
+            }
+            case 'SPLINE': {
+                points = this._parseSpline( dxfEntity as ISplineEntity );
+                break;
+            }
+            // case 'POINT': {
+            //     points = this._parsePoint( dxfEntity as IPointEntity );
+            //     break;
+            // }
+            default: {
+                console.log( `parser to dxf entity type ${dxfEntity.type} not implemented` );
+            }
+        }
+        return points;
+    }
+
+    private _parsePolyline( entity: IPolylineEntity ): IPoint[] {
+        const points: IPoint[] = [];
+        let vertex: IVertexEntity;
+        let startPoint: IPoint;
+        let endPoint: IPoint;
+        let bulge;
 
         if ( !entity.vertices ) {
             console.log( 'entity missing vertices.' );
@@ -91,7 +155,7 @@ export class CSDXFParser {
         }
 
         // create geometry
-        for ( i = 0; i < entity.vertices.length; i++ ) {
+        for ( let i = 0; i < entity.vertices.length; i++ ) {
 
             if ( entity.vertices[ i ].bulge ) {
                 bulge = entity.vertices[ i ].bulge;
@@ -103,7 +167,7 @@ export class CSDXFParser {
                 points.push.apply( points, bulgePoints );
             } else {
                 vertex = entity.vertices[ i ];
-                points.push( new THREE.Vector3( vertex.x, vertex.y, 0 ) );
+                points.push({ x: vertex.x, y: vertex.y, z: 0 });
             }
 
         }
@@ -113,8 +177,11 @@ export class CSDXFParser {
     }
 
     private _parseLwPolyline( entity: ILwpolylineEntity ) {
-        const points = [];
-        let vertex, startPoint, endPoint, bulge, i;
+        const points: IPoint[] = [];
+        let vertex: IVertex;
+        let startPoint: IPoint;
+        let endPoint: IPoint;
+        let bulge;
 
         if ( !entity.vertices ) {
             console.log( 'entity missing vertices.' );
@@ -122,7 +189,7 @@ export class CSDXFParser {
         }
 
         // create geometry
-        for ( i = 0; i < entity.vertices.length; i++ ) {
+        for ( let i = 0; i < entity.vertices.length; i++ ) {
 
             if ( entity.vertices[ i ].bulge ) {
                 bulge = entity.vertices[ i ].bulge;
@@ -134,7 +201,7 @@ export class CSDXFParser {
                 points.push.apply( points, bulgePoints );
             } else {
                 vertex = entity.vertices[ i ];
-                points.push( new THREE.Vector3( vertex.x, vertex.y, 0 ) );
+                points.push({ x: vertex.x, y: vertex.y, z: 0 });
             }
 
         }
@@ -144,8 +211,8 @@ export class CSDXFParser {
     }
 
     private _parseLine( entity: ILineEntity ) {
-        const points = [];
-        let vertex, i;
+        const points: IPoint[] = [];
+        let vertex: IPoint;
 
         if ( !entity.vertices ) {
             console.log( 'entity missing vertices.' );
@@ -153,10 +220,10 @@ export class CSDXFParser {
         }
 
         // create geometry
-        for ( i = 0; i < entity.vertices.length; i++ ) {
+        for ( let i = 0; i < entity.vertices.length; i++ ) {
 
             vertex = entity.vertices[ i ];
-            points.push( new THREE.Vector3( vertex.x, vertex.y, 0 ) );
+            points.push({ x: vertex.x, y: vertex.y, z: 0 });
 
         }
 
@@ -164,7 +231,7 @@ export class CSDXFParser {
     }
 
     private _parseCircle( entity: ICircleEntity | IArcEntity ) {
-        let startAngle, endAngle;
+        let startAngle: number, endAngle: number;
         if ( entity.type === 'CIRCLE' ) {
             startAngle = entity.startAngle || 0;
             endAngle = startAngle + 2 * Math.PI;
@@ -179,7 +246,7 @@ export class CSDXFParser {
             startAngle,
             endAngle);
 
-        const points = curve.getPoints( 32 ).map( p2 => new THREE.Vector3( p2.x, p2.y, 0 ));
+        const points = curve.getPoints( 32 ).map( p2 => ({ x: p2.x, y: p2.y, z: 0 }) );
         return points;
     }
 
@@ -196,7 +263,7 @@ export class CSDXFParser {
             rotation
         );
 
-        const points = curve.getPoints( 50 ).map( p2 => new THREE.Vector3( p2.x, p2.y, 0 ));;
+        const points = curve.getPoints( 50 ).map( p2 => ({ x: p2.x, y: p2.y, z: 0 }) );
         return points;
 
     }
@@ -206,36 +273,13 @@ export class CSDXFParser {
 
         const points = this._getBSplinePolyline( entity.controlPoints, entity.degreeOfSplineCurve, entity.knotValues, 100 );
 
-        return points.map( p2 => new THREE.Vector3( p2.x, p2.y, 0 ));
+        return points.map( p2 => ({ x: p2.x, y: p2.y, z: 0 }) );
     }
 
     private _parsePoint( entity: IPointEntity ) {
         return [ new THREE.Vector3( entity.position.x, entity.position.y, entity.position.z ) ];
     }
 
-    private _getColor( entity: IEntity, dxf: IDxf ): number {
-        var color = 0x000000; //default
-        if ( entity.color ) {
-            color = entity.color;
-        }
-        else if ( dxf.tables && dxf.tables.layer && dxf.tables.layer.layers[ entity.layer ] ) {
-            color = dxf.tables.layer.layers[ entity.layer ].color;
-        }
-
-        if ( color == null || color === 0xffffff ) {
-            color = 0x000000;
-        }
-        return color;
-    }
-
-    private _getLineType( entity: IEntity, dxf: IDxf ){
-        const lineType = dxf.tables.lineType.lineTypes[entity.lineType];
-        if (lineType && lineType.pattern && lineType.pattern.length !== 0) {
-            return CSLineType.DASHED;
-        } else {
-            return CSLineType.NORMAL;
-        }
-    }
     private _getBSplinePolyline( controlPoints: IPoint[], degree: number, knots: number[], interpolationsPerSplineSegment: number, weights?: number[] ) {
         const polyline = []
         const controlPointsForLib = controlPoints.map( function ( p ) {
@@ -288,7 +332,7 @@ export class CSDXFParser {
         startAngle = angle2( center, p0 );
         thetaAngle = angle / segments;
 
-        var vertices = [];
+        var vertices: IPoint[] = [];
 
         vertices.push( new THREE.Vector3( p0.x, p0.y, 0 ) );
 
