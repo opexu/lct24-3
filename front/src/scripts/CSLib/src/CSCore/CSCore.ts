@@ -15,7 +15,7 @@ import { CSTransformEventKey, type ICSTransform } from "../CSTransform/ICSTransf
 import { CSTransform } from "../CSTransform/CSTransform";
 import { CSBorderObject, type ICSBorderObject, type ICSBorderObjectConstructorOpts } from "../CSObjects/CSBorderObject";
 import type { IStrapi } from "@/types/strapi";
-import type { IDxfParsedMafObj, IMafFull, IMultiDimArray, IPlaygroundFull, IPoint2D } from "@/types/IReestr";
+import type { IDxfParsedMafObj, IMafFull, IMultiDimArray, IPlaygroundFull, IPoint2D, ISceneGraph, ISerializableObj } from "@/types/IReestr";
 import { PlaygroundCoordsParser } from "../CSUtils";
 import { CSCollision, type ICSCollision } from "../CSCollision";
 
@@ -273,5 +273,37 @@ export class CSCore extends EventEmitter<CSCoreEvent> implements ICSCore {
         this._CSObjectCache.Map.forEach(( csdxf, id ) => {
             csdxf.IsSelected && csdxf.deselect();
         })
+    }
+
+    public buildSceneGraph(): ISceneGraph | null {
+        if( this._csBorderObjectsArr.length === 0 ){
+            console.warn('Площадка отсутствует в сцене');
+            return null;
+        }
+        if( this._CSObjectCache.Map.size === 0 ){
+            console.warn('Мафы отсутствуют в сцене');
+            return null;
+        }
+        const notCollideCSObjects = this._CSObjectCache.CSObjectArr.filter( csobj => !csobj.IsCollide );
+        if( notCollideCSObjects.length === 0 ){
+            console.warn('Мафы имеют коллизии');
+            return null;
+        }
+        const serializableMafsArr: ISerializableObj[] = [];
+        const borderObj = this._csBorderObjectsArr[0].Object2D;
+        notCollideCSObjects.forEach( csobj => {
+            const serializable = csobj.serialize( borderObj );
+            serializableMafsArr.push( serializable );
+        });
+        const serializablePlayground = this._csBorderObjectsArr[0].serialize( borderObj );
+        return {
+            data: {
+                playground: serializablePlayground,
+                mafs: {
+                    maf: serializableMafsArr,
+                }
+            }
+            
+        }
     }
 }

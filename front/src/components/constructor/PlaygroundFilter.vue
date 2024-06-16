@@ -11,86 +11,133 @@ v-model:visible="visible">
     </template>
     <div class="relative w-full max-h-full flex flex-col gap-2 overflow-hiden">
         
-        <!-- ТИП МАФОВ -->
-        <MultiSelect class="w-full"
-        filter showClear
-        :resetFilterOnHide="false"
-        v-model="selectedMafTypesArr"
-        :options="mafTypesArr"
-        :optionLabel="( option: IStrapi<IMafType> ) => {
-            return option?.attributes.Title
-        }"
-        placeholder="Выбрать тип мафа"
-        >
-            <template #option="{ option, index }: { option: IStrapi<IMafType>, index: number }">
-                {{ option?.attributes.Title }}
-            </template>
-        </MultiSelect>
+        <Fieldset legend="Фильтры поиска" toggleable>
+            <div class="w-full h-full flex flex-col gap-2">
 
-        <!-- КАТАЛОГИ -->
-        <MultiSelect class="w-full"
-        filter showClear
-        :resetFilterOnHide="false"
-        v-model="selectedCatalogsArr"
-        :options="catalogsArr"
-        :optionLabel="( option: IStrapi<ICatalog> ) => {
-            return option?.attributes.Title
-        }"
-        placeholder="Выбрать каталог"
-        >
-            <template #option="{ option, index }: { option: IStrapi<ICatalog>, index: number }">
-                {{ option?.attributes.Title }}
-            </template>
-        </MultiSelect>
+                <!-- ТИП МАФОВ -->
+                <MultiSelect class="w-full"
+                filter showClear
+                :resetFilterOnHide="false"
+                v-model="selectedMafTypesArr"
+                :options="mafTypesArr"
+                :optionLabel="( option: IStrapi<IMafType> ) => {
+                    return option?.attributes.Title
+                }"
+                placeholder="Выбрать тип мафа"
+                >
+                    <template #option="{ option, index }: { option: IStrapi<IMafType>, index: number }">
+                        {{ option?.attributes.Title }}
+                    </template>
+                </MultiSelect>
 
-        <!-- ПОСТАВЩИКИ -->
-        <MultiSelect class="w-full"
-        filter showClear
-        :resetFilterOnHide="false"
-        v-model="selectedProvidersArr"
-        :options="providersArr"
-        :optionLabel="( option: IStrapi<IProvider> ) => {
-            return option?.attributes.Title
-        }"
-        placeholder="Выбрать поставщика"
-        >
-            <template #option="{ option, index }: { option: IStrapi<IProvider>, index: number }">
-                {{ option?.attributes.Title }}
-            </template>
-        </MultiSelect>
+                <!-- КАТАЛОГИ -->
+                <MultiSelect class="w-full"
+                filter showClear
+                :resetFilterOnHide="false"
+                v-model="selectedCatalogsArr"
+                :options="catalogsArr"
+                :optionLabel="( option: IStrapi<ICatalog> ) => {
+                    return option?.attributes.Title
+                }"
+                placeholder="Выбрать каталог"
+                >
+                    <template #option="{ option, index }: { option: IStrapi<ICatalog>, index: number }">
+                        {{ option?.attributes.Title }}
+                    </template>
+                </MultiSelect>
 
-        <!-- ТИПЫ ТЕРРИТОРИЙ -->
-        <MultiSelect class="w-full"
-        filter showClear
-        :resetFilterOnHide="false"
-        v-model="selectedTerritoryTypesArr"
-        :options="territoryTypesArr"
-        :optionLabel="( option: IStrapi<ITerritoryType> ) => {
-            return option?.attributes.Title
-        }"
-        placeholder="Выбрать типы территорий"
-        >
-            <template #option="{ option, index }: { option: IStrapi<ITerritoryType>, index: number }">
-                {{ option?.attributes.Title }}
-            </template>
-        </MultiSelect>
+                <!-- ПОСТАВЩИКИ -->
+                <MultiSelect class="w-full"
+                filter showClear
+                :resetFilterOnHide="false"
+                v-model="selectedProvidersArr"
+                :options="providersArr"
+                :optionLabel="( option: IStrapi<IProvider> ) => {
+                    return option?.attributes.Title
+                }"
+                placeholder="Выбрать поставщика"
+                >
+                    <template #option="{ option, index }: { option: IStrapi<IProvider>, index: number }">
+                        {{ option?.attributes.Title }}
+                    </template>
+                </MultiSelect>
 
-        <!-- ВОЗРАСТНЫЕ КАТЕГОРИИ -->
-        <MultiSelect class="w-full"
-        filter showClear
-        :resetFilterOnHide="false"
-        v-model="selectedAgeCategoriesArr"
-        :options="ageCategoriesArr"
-        :optionLabel="( option: IStrapi<IAgeCategory> ) => {
-            return option?.attributes.Title
-        }"
-        placeholder="Выбрать возрастные категории"
-        >
-            <template #option="{ option, index }: { option: IStrapi<IAgeCategory>, index: number }">
-                {{ option?.attributes.Title }}
-            </template>
-        </MultiSelect>
+                <!-- ТИПЫ ТЕРРИТОРИЙ -->
+                <MultiSelect class="w-full"
+                filter showClear
+                :resetFilterOnHide="false"
+                v-model="selectedTerritoryTypesArr"
+                :options="territoryTypesArr"
+                :optionLabel="( option: IStrapi<ITerritoryType> ) => {
+                    return option?.attributes.Title
+                }"
+                placeholder="Выбрать типы территорий"
+                >
+                    <template #option="{ option, index }: { option: IStrapi<ITerritoryType>, index: number }">
+                        {{ option?.attributes.Title }}
+                    </template>
+                </MultiSelect>
 
+                <!-- ВОЗРАСТНЫЕ КАТЕГОРИИ -->
+                <MultiSelect class="w-full"
+                filter showClear
+                :resetFilterOnHide="false"
+                v-model="selectedAgeCategoriesArr"
+                :options="ageCategoriesArr"
+                :optionLabel="( option: IStrapi<IAgeCategory> ) => {
+                    return option?.attributes.Title
+                }"
+                placeholder="Выбрать возрастные категории"
+                >
+                    <template #option="{ option, index }: { option: IStrapi<IAgeCategory>, index: number }">
+                        {{ option?.attributes.Title }}
+                    </template>
+                </MultiSelect>
+
+                <div class="w-full flex flex-row gap-2">
+                    
+                    <div class="w-full flex flex-col gap-2">
+                        <label for="minPrice" class=""
+                        :class="[ !useMinPrice ? 'text-surface-500': '' ]"
+                        >Минимальная цена</label>
+                        <div class="flex flex-row gap-2 items-center">
+                            <Checkbox v-model="useMinPrice" :binary="true" />
+                            <InputNumber class="w-full" inputId="minPrice"
+                            v-model="minPrice"
+                            :disabled="!useMinPrice"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-2">
+                        <label for="maxPrice" class=""
+                        :class="[ !useMaxPrice ? 'text-surface-500' : '' ]"
+                        >Максимальная цена</label>
+                        <div class="flex flex-row gap-2 items-center">
+                            <Checkbox v-model="useMaxPrice" :binary="true" />
+                            <InputNumber class="w-full" inputId="maxPrice"
+                            v-model="maxPrice"
+                            :disabled="!useMaxPrice"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-2">
+                        <label for="priceLimit" class=""
+                        :class="[ !usePriceLimit ? 'text-surface-500' : '' ]"
+                        >Лимит площадки</label>
+                        <div class="flex flex-row gap-2 items-center">
+                            <Checkbox v-model="usePriceLimit" :binary="true" />
+                            <InputNumber class="w-full" inputId="priceLimit"
+                            v-model="priceLimit"
+                            :disabled="!usePriceLimit"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Fieldset>
+        
         <Button outlined class="w-full"
         :disabled="!CAN_APPLY_FILTERS"
         @click="onApplyFiltersClick"
@@ -115,9 +162,12 @@ v-model:visible="visible">
             <Column selectionMode="multiple" headerStyle="width: 3rem">
             </Column>
             <Column field="id" header="ID"></Column>
-            <Column field="attributes.Name" header="Наименование МАФ"></Column>
+            <Column field="attributes.Name" header="Наим. МАФ"></Column>
+            <Column field="attributes.AnalogSample" header="Наим. производителя"></Column>
+            <Column field="attributes.SampleCode" header="Арт. образца"></Column>
             <Column field="attributes.TypeEquipment" header="Тип оборудования"></Column>
             <Column field="attributes.Dimensions" header="Габаритные размеры"></Column>
+            <Column field="attributes.Price" header="Цена"></Column>
         </DataTable>
 
         <Button outlined class="w-full"
@@ -126,12 +176,16 @@ v-model:visible="visible">
         v-tooltip.bottom = "'Добавить в редактор'"
         >Добавить выделенное</Button>
     </div>
+    <Toast />
 </Dialog>
 </template>
 
 <script setup lang="ts">
 import Dialog from 'primevue/dialog';
+import InputNumber from 'primevue/inputnumber';
 import Button from 'primevue/button';
+import Fieldset from 'primevue/fieldset';
+import Checkbox from 'primevue/checkbox';
 import DataTable, { type DataTablePageEvent } from 'primevue/datatable';
 import Column from 'primevue/column';
 import MultiSelect from 'primevue/multiselect';
@@ -149,9 +203,14 @@ import { CATALOG_API, CATALOG_KEY } from '@/api/catalog';
 import { PROVIDER_API, PROVIDER_KEY } from '@/api/provider';
 import { TERRITORY_TYPE_API, TERRITORY_TYPE_KEY } from '@/api/territory-type';
 import { AGE_CATEGORY_API, AGE_CATEGORY_KEY } from '@/api/age-category';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 const CSStore = useCSStore();
 const { strapiget } = useApi();
+const PlaygroundStore = usePlaygroundStore();
 
 const visible = defineModel<boolean>('playgroundFilterVisible');
 
@@ -169,6 +228,13 @@ const selectedTerritoryTypesArr = ref<IStrapi<ITerritoryType>[]>([]);
 
 const ageCategoriesArr = ref<IStrapi<IAgeCategory>[]>([]);
 const selectedAgeCategoriesArr = ref<IStrapi<IAgeCategory>[]>([]);
+
+const minPrice = ref(0);
+const useMinPrice = ref(false);
+const maxPrice = ref(0);
+const useMaxPrice = ref(false);
+const { priceLimit } = storeToRefs( PlaygroundStore );
+const usePriceLimit = ref(false);
 
 const page = ref(1);
 const pageSize = ref(10);
@@ -208,13 +274,17 @@ async function onApplyFiltersClick(){
     if( IN_PROCESS.value ) return;
     try{
         IN_PROCESS.value = true;
+        const price: { min?: number, max?: number } = {};
+        if( useMinPrice.value ) price.min = minPrice.value;
+        if( useMaxPrice.value ) price.max = maxPrice.value;
         const mafsRes = await strapiget<IAxios<IStrapi<IMafFull>[],Record<'pagination', IPagination>>, MAF_API[MAF_KEY.FILTER_MAFS]>( MAF_API[MAF_KEY.FILTER_MAFS], 
             selectedMafTypesArr.value.map( v => v.id ),
             selectedCatalogsArr.value.map( v => v.id ),
             selectedProvidersArr.value.map( v => v.id ),
             selectedTerritoryTypesArr.value.map( v => v.id ),
             selectedAgeCategoriesArr.value.map( v => v.id ),
-            page.value, pageSize.value
+            page.value, pageSize.value,
+            price,
         );
         console.log('mafsRes: ', mafsRes);
         mafsArr.value = mafsRes.data.data;
@@ -244,11 +314,18 @@ async function onAddToSceneClick(){
     try{
         const pointsRes = await strapiget<IDxfParsedMafObj[], MAF_API[MAF_KEY.POINTS]>( MAF_API[MAF_KEY.POINTS], selectedMafs.value.map( v => v.id ) );
         console.log('pointsRes: ', pointsRes);
-        pointsRes.data.forEach( g => {
+        for( let i = 0; i < pointsRes.data.length; i++ ){
+            const g = pointsRes.data[ i ];
             const maf = selectedMafs.value.find( m => m.id === g.id );
-            if( !maf ) return;
+            if( !maf ) continue;
+            if( !PlaygroundStore.canAdd( maf.attributes.Price ?? 0 ) ){
+                toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Превышен лимит', life: 3000 });
+                continue;
+            }
+            PlaygroundStore.addPrice( maf.attributes.Price ?? 0 );
             CSStore.CS?.drawMaf( g, maf );
-        })
+        }
+        
     }catch(e){
         console.error('Ошибка получения данных для добавления в сцену', e);
     }finally{

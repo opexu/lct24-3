@@ -3,6 +3,7 @@ import { Polygon } from 'detect-collisions';
 import type { CSDXFObject, ICSDXFObject } from './CSDXFObject';
 import type { CSMafObject, ICSMafObject } from './CSMafObject';
 import type { CSPolygon } from '../CSCollision/CSPolygon';
+import type { ISerializableObj } from '@/types/IReestr';
 
 export type CSObject = CSDXFObject | CSMafObject;
 export type ICSObject = ICSDXFObject | ICSMafObject;
@@ -30,11 +31,16 @@ export interface ICSGeoProps {
     angle: number;
     width: number;
     length: number;
+    price?: number;
 }
 
 export interface ICollidable {
     Polygon: CSPolygon;
     IsCollide: boolean;
+}
+
+export interface ISerializable {
+    serialize( parent: THREE.Object3D ): ISerializableObj;
 }
 
 export function IsMaf( obj: ICSObject ): obj is ICSMafObject { return obj.IsMaf; }

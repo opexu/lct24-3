@@ -160,3 +160,18 @@ export interface IDxfParsedMafObj {
     minMax: { min: IPoint, max: IPoint }
 }
 //#endregion
+
+export interface ISerializableObj {
+    id: number;
+    points: { x: number, y: number }[];
+}
+
+export interface ISceneGraph {
+    data: {
+        playground: ISerializableObj;
+        mafs: {
+            maf: ISerializableObj[];
+        }
+    }
+    
+}

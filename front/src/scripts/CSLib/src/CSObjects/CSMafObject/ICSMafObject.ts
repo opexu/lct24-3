@@ -1,7 +1,7 @@
 import type { IMafFull } from '@/types/IReestr';
 import type { IStrapi } from '@/types/strapi';
 import * as THREE from 'three';
-import type { ICSSelectable, ICollidable, IDisposable, IGeoProps, IsMaf } from '../common';
+import type { ICSSelectable, ICollidable, IDisposable, IGeoProps, ISerializable, IsMaf } from '../common';
 import type { IEventable } from '../../EventEmitter';
 
 export interface ICSMafObjectConstructorOpts {
@@ -10,7 +10,7 @@ export interface ICSMafObjectConstructorOpts {
 
 
 
-export interface ICSMafObject extends IEventable<MafObjectEvent>, ICSSelectable, IDisposable, IsMaf, IGeoProps, ICollidable {
+export interface ICSMafObject extends IEventable<MafObjectEvent>, ICSSelectable, IDisposable, IsMaf, IGeoProps, ICollidable, ISerializable {
     ID: number;
     Object2D: THREE.Object3D;
     Maf: IStrapi<IMafFull>;

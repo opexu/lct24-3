@@ -11,7 +11,7 @@ export enum MAF_KEY {
 export interface MAF_API {
     [MAF_KEY.POST_MAF_ZIP]: IAPIPOST<[File]>,
     [MAF_KEY.POST_MAF_RELATIONS_ZIP]: IAPIPOST<[File]>,
-    [MAF_KEY.FILTER_MAFS]: IAPI<[number[], number[], number[], number[], number[], number, number ]>,
+    [MAF_KEY.FILTER_MAFS]: IAPI<[number[], number[], number[], number[], number[], number, number, { min?: number, max?: number }]>,
     [MAF_KEY.POINTS]: IAPI<[number[]]>,
 }
 
@@ -39,7 +39,7 @@ export const MAF_API: MAF_API = {
 
     FILTER_MAFS: {
         url: "/backend/api/mafs",
-        handler: function ( mafTypesIdArr: number[], catalogsIdArr: number[], providersIdArr: number[], territoryTypesIdArr: number[], ageCategoriesIdArr: number[], page: number, pageSize: number ){
+        handler: function ( mafTypesIdArr: number[], catalogsIdArr: number[], providersIdArr: number[], territoryTypesIdArr: number[], ageCategoriesIdArr: number[], page: number, pageSize: number, price: { min?: number, max?: number } = {} ){
             return qs.stringify({
                 filters: {
                     $and: (() => {
@@ -49,6 +49,9 @@ export const MAF_API: MAF_API = {
                         if( providersIdArr.length > 0 ) andArr.push({ provider: { id: { $in: providersIdArr }}});
                         if( territoryTypesIdArr.length > 0 ) andArr.push({ territory_types: { id: { $in: territoryTypesIdArr }}});
                         if( ageCategoriesIdArr.length > 0 ) andArr.push({ age_categories: { id: { $in: ageCategoriesIdArr }}});
+                        if( price.min && price.max ) andArr.push({ Price: { $between: [ price.min, price.max ] }});
+                        else if ( price.min ) andArr.push({ Price: { $gte: price.min }});
+                        else if ( price.max ) andArr.push({ Price: { $lte: price.max }});
                         return andArr;
                     })()
                 },

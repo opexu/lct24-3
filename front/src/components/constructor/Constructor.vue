@@ -37,10 +37,13 @@ import { usePlaygroundStore } from '@/stores/playground-store';
 import { storeToRefs } from 'pinia';
 import SelectPlayground from '@/components/constructor/SelectPlayground.vue';
 import PlaygoundFilter from '@/components/constructor/PlaygroundFilter.vue';
+import { useCSStore } from '@/stores/cs-store';
+import { XMLBuilder, type XmlBuilderOptions } from 'fast-xml-parser';
+import { downloadXmlFile, getFormattedDate } from '@/scripts/utils/Utils';
 
 const PlaygroundStore = usePlaygroundStore();
 const { selectedPlayground } = storeToRefs( PlaygroundStore );
-
+const CSStore = useCSStore();
 
 defineProps<{
     isLocked: boolean;
@@ -50,6 +53,22 @@ const selectPlaygroundVisible = ref(false);
 const playgroundFilterVisible = ref(false);
 
 async function downloadXML(){
+    if( !selectedPlayground.value ){
+        console.warn('Площадка не выбрана');
+        return;
+    }
     console.log('download xml')
+    const sceneGraph = CSStore.CS?.buildSceneGraph();
+    if( !sceneGraph ) return;
+    
+    const options: XmlBuilderOptions  = {
+        ignoreAttributes : false
+    };
+
+    const builder = new XMLBuilder( options );
+    let xmlDataStr = builder.build( sceneGraph );
+
+    const fileName = selectedPlayground.value.id.toString() + '-' + getFormattedDate() + '.xml';
+    downloadXmlFile( xmlDataStr, fileName );
 }
 </script>

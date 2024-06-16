@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Polygon } from 'detect-collisions';
-import type { IPlaygroundFull } from "@/types/IReestr";
+import type { IPlaygroundFull, ISerializableObj } from "@/types/IReestr";
 import type { IStrapi } from "@/types/strapi";
 import type { Path, Object3D, Object3DEventMap } from "three";
 import type { ICSBorderObject, ICSBorderObjectConstructorOpts } from "./ICSBorderObject";
@@ -52,5 +52,22 @@ export class CSBorderObject implements ICSBorderObject {
     
     private _create( points: THREE.Vector3[], color: number ){
         return CSBuilder.PolylineRaycast( points, color, { radius: 40 })
+    }
+
+    public serialize( parent: THREE.Object3D ): ISerializableObj {
+        const points: { x: number, y: number }[] = [];
+        const positionAttribute = this._object3D.geometry.getAttribute('position');
+        for( let i = 0; i < positionAttribute.count; i++ ){
+            const vertex = new THREE.Vector3();
+            vertex.fromBufferAttribute( positionAttribute, i );
+            this._object3D.localToWorld( vertex );
+            parent.worldToLocal( vertex );
+            points.push({ x: vertex.x, y: vertex.z });
+        }
+
+        return {
+            id: this.ID,
+            points,
+        }
     }
 }

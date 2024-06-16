@@ -31,7 +31,7 @@ import { storeToRefs } from 'pinia';
 import { useCSStore } from '@/stores/cs-store';
 import Button from 'primevue/button';
 const PlaygroundStore = usePlaygroundStore();
-const { selectedPlayground } = storeToRefs( PlaygroundStore );
+const { selectedPlayground, priceLimit, currentPrice } = storeToRefs( PlaygroundStore );
 const CSStore = useCSStore();
 
 const props = defineProps<{
@@ -53,6 +53,8 @@ const playgroundProps = computed(() => {
         { title: 'Округ', value: props.playground.attributes.yard_area.data.attributes.district.data.attributes.Title },
         { title: 'ГРБС', value: props.playground.attributes.yard_area.data.attributes.grbc.data.attributes.Title },
         { title: 'Балансодержатель', value: props.playground.attributes.yard_area.data.attributes.balance_holder.data.attributes.Title },
+        { title: 'Установленный лимит', value: priceLimit.value },
+        { title: 'Текущий лимит', value: currentPrice.value }
     ]
 });
 

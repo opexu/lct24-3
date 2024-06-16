@@ -3,7 +3,7 @@
 @tailwind variants;
 
 html {
-    @apply w-screen h-screen overscroll-none text-sm;
+    @apply w-screen h-screen overscroll-none text-sm bg-surface-950;
 }
 
 body {

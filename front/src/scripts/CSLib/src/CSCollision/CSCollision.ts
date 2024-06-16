@@ -32,7 +32,7 @@ export class CSCollision implements ICSCollision {
         const polygon = csobj.Polygon;
         const geoProps = csobj.GeoProps;
         polygon.setPosition( geoProps.origin.x, geoProps.origin.z );
-        polygon.setAngle( geoProps.radAngle );
+        polygon.setAngle( -geoProps.radAngle );
         this._check();
     }
 

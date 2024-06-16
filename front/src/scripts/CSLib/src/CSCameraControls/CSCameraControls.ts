@@ -28,7 +28,7 @@ export class CSCameraControls extends EventEmitter<CSCameraEvent> implements ICS
         this._PCamera.position.set( startPos, startPos, startPos );
         this._PCamera.layers.enable( 1 );
         this._PCamera.layers.enable( 2 );
-        this._OCamera = new THREE.OrthographicCamera( 0.5 * OCP.frustum, 0.5 * OCP.frustum, );
+        this._OCamera = new THREE.OrthographicCamera( OCP.frustum, OCP.frustum, OCP.frustum, OCP.frustum, PCP.near, PCP.far );
         this._OCamera.position.set( startPos, startPos, startPos );
         this._OCamera.layers.enable( 1 );
         this._OCamera.layers.enable( 2 );
@@ -111,13 +111,16 @@ export class CSCameraControls extends EventEmitter<CSCameraEvent> implements ICS
         const distance = this._PCamera.position.distanceTo( this._controls.target );
         const halfWidth = this._frustumWidthAtDistance( this._PCamera, distance ) / 2;
         const halfHeight = this._frustumHeightAtDistance( this._PCamera, distance ) / 2;
-        
+        console.log('halfWidth', halfWidth)
+        console.log('halfHeight', halfHeight)
         this._OCamera.top = halfHeight;
         this._OCamera.bottom = -halfHeight;
         this._OCamera.left = -halfWidth;
         this._OCamera.right = halfWidth;
         this._OCamera.zoom = this._PCamera.zoom;
+        console.log('this._OCamera.zoom', this._OCamera.zoom)
         this._OCamera.lookAt( this._controls.target );
+        console.log('this._controls.target', this._controls.target)
         this._OCamera.updateProjectionMatrix();
 
         this._controls.object = this._OCamera;

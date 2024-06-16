@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { IEventable } from '../../EventEmitter';
-import type { ICSSelectable, ICollidable, IDisposable, IGeoProps, IsMaf } from '../common';
+import type { ICSSelectable, ICollidable, IDisposable, IGeoProps, ISerializable, IsMaf } from '../common';
 
 export interface ICSDXFObjectConstructorOpts {
     color: number,
@@ -19,7 +19,7 @@ export interface ICSDXFObjectConstructorOpts {
 //     engineType: CSEngineType;
 // }
 
-export interface ICSDXFObject extends IEventable<CSDXFEvent>, ICSSelectable, IDisposable, IsMaf, IGeoProps, ICollidable {
+export interface ICSDXFObject extends IEventable<CSDXFEvent>, ICSSelectable, IDisposable, IsMaf, IGeoProps, ICollidable, ISerializable {
     ID: number;
     DXFLayer: string;
     Type: CSDXFObjectType;

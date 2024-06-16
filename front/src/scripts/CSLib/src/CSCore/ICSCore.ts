@@ -5,7 +5,7 @@ import type { CSMafObject, ICSDXFObject, ICSMafObject, ICSObject } from '../CSOb
 import type { IEventEmitter } from '../EventEmitter';
 import type { ICSBorderObject, ICSBorderObjectConstructorOpts } from '../CSObjects/CSBorderObject';
 import type { IStrapi } from '@/types/strapi';
-import type { IDxfParsedMafObj, IMafFull, IPlayground, IPlaygroundFull } from '@/types/IReestr';
+import type { IDxfParsedMafObj, IMafFull, IPlayground, IPlaygroundFull, ISceneGraph } from '@/types/IReestr';
 
 export enum CSMode { SELECT, EDIT };
 
@@ -29,6 +29,7 @@ export interface ICSCore extends IEventEmitter<CSCoreEvent> {
     removeBorders(): void;
     drawMaf( parsedMafGeo: IDxfParsedMafObj, mafInfo: IStrapi<IMafFull> ): void;
     removeMaf( id: number ): void;
+    buildSceneGraph(): ISceneGraph | null;
     CSObjectsArr: ICSObject[];
 }
 

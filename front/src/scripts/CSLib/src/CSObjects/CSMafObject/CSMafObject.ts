@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Polygon } from 'detect-collisions';
-import type { IDxfParsedMafObj, IMafFull } from "@/types/IReestr";
+import type { IDxfParsedMafObj, IMafFull, IPoint2D, ISerializableObj } from "@/types/IReestr";
 import { CSMafObjectEvent, type ICSMafObject, type ICSMafObjectConstructorOpts, type MafObjectEvent } from "./ICSMafObject";
 import { EventEmitter } from '../../EventEmitter/EventEmitter';
 import type { IStrapi } from "@/types/strapi";
@@ -85,6 +85,7 @@ export class CSMafObject extends EventEmitter<MafObjectEvent> implements ICSMafO
             angle: THREE.MathUtils.radToDeg( this._object3D.rotation.y ),
             width: size.x,
             length: size.z,
+            price: this._maf.attributes.Price,
         }
     }
     get Polygon(){ return this._polygon; }
@@ -128,5 +129,22 @@ export class CSMafObject extends EventEmitter<MafObjectEvent> implements ICSMafO
                 o.geometry.dispose();
             }
         });
+    }
+
+    public serialize( parent: THREE.Object3D ): ISerializableObj {
+        const points: { x: number, y: number }[] = [];
+        const positionAttribute = this._object3D.geometry.getAttribute('position');
+        for( let i = 0; i < positionAttribute.count; i++ ){
+            const vertex = new THREE.Vector3();
+            vertex.fromBufferAttribute( positionAttribute, i );
+            this._object3D.localToWorld( vertex );
+            parent.worldToLocal( vertex );
+            points.push({ x: vertex.x, y: vertex.z });
+        }
+
+        return {
+            id: this.ID,
+            points,
+        }
     }
 }

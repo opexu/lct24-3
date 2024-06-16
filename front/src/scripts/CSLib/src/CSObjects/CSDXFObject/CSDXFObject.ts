@@ -5,6 +5,7 @@ import * as CSUtils from '../../CSUtils';
 import * as CSBuilder from '../../CSUtils/CSBuilder/CSBuilder';
 import { CSDXFObjectEvent, EngineTypesArr, CSDXFObjectType, CSEngineType, type CSDXFEvent, type ICSDXFObject, type ICSDXFObjectConstructorOpts } from './ICSDXFObject';
 import { CSPolygon } from '../../CSCollision/CSPolygon';
+import type { ISerializableObj } from '@/types/IReestr';
 
 export class CSDXFObject extends EventEmitter<CSDXFEvent> implements ICSDXFObject {
     
@@ -183,5 +184,22 @@ export class CSDXFObject extends EventEmitter<CSDXFEvent> implements ICSDXFObjec
         if( !this._availableEngineTypes.includes( engineType ) ) return;
         this._engineType = engineType;
         this.emit( CSDXFObjectEvent.UPDATED, this );
+    }
+
+    public serialize( parent: THREE.Object3D ): ISerializableObj {
+        const points: { x: number, y: number }[] = [];
+        const positionAttribute = this._object3D.geometry.getAttribute('position');
+        for( let i = 0; i < positionAttribute.count; i++ ){
+            const vertex = new THREE.Vector3();
+            vertex.fromBufferAttribute( positionAttribute, i );
+            this._object3D.localToWorld( vertex );
+            parent.worldToLocal( vertex );
+            points.push({ x: vertex.x, y: vertex.z });
+        }
+
+        return {
+            id: this.ID,
+            points,
+        }
     }
 }
