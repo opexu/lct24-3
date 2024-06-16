@@ -1,5 +1,5 @@
 <template>
-<Dialog class="text-primary w-2/3 overflow-hidden"
+<Dialog class="text-primary w-4/5 overflow-hidden"
 :pt="{ content: 'relative h-fit overflow-y-auto' }"
 :pt-options="{ mergeProps: true }"
 modal header="Загрузка файлов"
@@ -233,8 +233,7 @@ const minPrice = ref(0);
 const useMinPrice = ref(false);
 const maxPrice = ref(0);
 const useMaxPrice = ref(false);
-const { priceLimit } = storeToRefs( PlaygroundStore );
-const usePriceLimit = ref(false);
+const { priceLimit, usePriceLimit } = storeToRefs( PlaygroundStore );
 
 const page = ref(1);
 const pageSize = ref(10);

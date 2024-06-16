@@ -33,7 +33,9 @@ export class CSMafObject extends EventEmitter<MafObjectEvent> implements ICSMafO
     ){
         super();
 
-        this._points = data.borderPoints;
+        const SCALE_FACTOR = 0.1;
+
+        this._points = data.borderPoints.map( p => ({ x: p.x * SCALE_FACTOR, y: p.y * SCALE_FACTOR, z: p.z * SCALE_FACTOR }));
         this._maf = opts.maf;
         this._id = data.id;
         
@@ -42,6 +44,8 @@ export class CSMafObject extends EventEmitter<MafObjectEvent> implements ICSMafO
 
         this._nonCollideColor = new THREE.Color( 0x00ff00 );
         this._collideColor = new THREE.Color( 0xff0000 );
+
+        
 
         const { origin, mesh, raycastObj, mat: _mat } = this._createRaycast( this._points, 0x00ff00 );
         this._borderMat = _mat;
@@ -55,14 +59,11 @@ export class CSMafObject extends EventEmitter<MafObjectEvent> implements ICSMafO
         this._raycastObject3D.userData = this;
 
         this._object3D.add( this._raycastObject3D );
-        const { parentObj, mat } = this._createGeo( data.geoPoints, 0xffffff );
+        const { parentObj, mat } = this._createGeo( data.geoPoints, 0xffffff, SCALE_FACTOR );
         this._geoMat = mat;
         this._object3D.add( parentObj );
         this._object3D.position.set( origin.x, origin.y, origin.z );
         
-        // console.log('maf origin', origin.x, origin.y, origin.z );
-        // console.log('maf points', this._points );
-        // this._polygon = new Polygon({ x: origin.x, y: origin.z }, this._points.map( p => ({ x: p.x, y: p.z })), { isStatic: false });
         this._polygon = new CSPolygon( this._raycastObject3D.id, this, { x: origin.x, y: origin.z }, this._points.map( p => ({ x: p.x, y: p.z })), { isStatic: false });
 
         this._isSelected = false;
@@ -97,13 +98,13 @@ export class CSMafObject extends EventEmitter<MafObjectEvent> implements ICSMafO
         this._borderMat.needsUpdate = true;
     }
 
-    private _createRaycast( points: IPoint[], color: number ){
+    private _createRaycast( points: IPoint[], color: number){
         const _points = points.map( p => new THREE.Vector3( p.x, 0, p.z ) );
         return CSBuilder.PolylineRaycast( _points, color, { radius: 10 } );
     }
 
-    private _createGeo( points: IPoint[][], color: number ){
-        const _points = points.map( pArr => pArr.map( p => new THREE.Vector3( p.x, 0, p.z ) ));
+    private _createGeo( points: IPoint[][], color: number, SCALE_FACTOR: number = 1 ){
+        const _points = points.map( pArr => pArr.map( p => new THREE.Vector3( p.x * SCALE_FACTOR, 0, p.z * SCALE_FACTOR ) ));
         return CSBuilder.PolylinesGroup( _points, color );
     }
 

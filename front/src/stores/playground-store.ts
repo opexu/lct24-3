@@ -10,8 +10,15 @@ export const usePlaygroundStore = defineStore( 'PlaygroundStore', () => {
 
     const priceLimit = ref(0);
     const currentPrice = ref(0);
+    const usePriceLimit = ref(false);
+
     function canAdd( price: number ){
-        return priceLimit.value > currentPrice.value + price;
+        if( usePriceLimit.value ){
+            return priceLimit.value > currentPrice.value + price;
+        }else{
+            return true;
+        }
+        
     }
     function addPrice( price: number ){
         currentPrice.value = Math.min( priceLimit.value, currentPrice.value + price );
@@ -19,5 +26,5 @@ export const usePlaygroundStore = defineStore( 'PlaygroundStore', () => {
     function removePrice( price: number ){
         currentPrice.value = Math.max( 0, currentPrice.value - price );
     }
-    return { playgroundsArr, selectedPlayground, priceLimit, canAdd, addPrice, removePrice, currentPrice }
+    return { playgroundsArr, selectedPlayground, priceLimit, canAdd, addPrice, removePrice, currentPrice, usePriceLimit }
 })

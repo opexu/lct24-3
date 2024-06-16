@@ -67,4 +67,4 @@ function onDrawPlaygroundClick(){
     if( CSStore.CS?.HasBorders ) CSStore.CS?.removeBorders();
     CSStore.CS?.drawBorders( selectedPlayground.value );
 }
-</script>onMounted, 
+</script>
